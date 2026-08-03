@@ -28,7 +28,7 @@ process PREPARE_REFERENCE {
         *)                    cp "${reference}" reference.fasta ;;
     esac
     samtools faidx reference.fasta
-    gatk CreateSequenceDictionary -R reference.fasta -O reference.dict
+    gatk --java-options "-Xmx${(int)(task.memory.toGiga()*0.8)}g" CreateSequenceDictionary -R reference.fasta -O reference.dict
     bwa-mem2 index reference.fasta
 
     cat <<-END_VERSIONS > versions.yml
@@ -94,7 +94,8 @@ process GATK_MARKDUPLICATES {
 
     script:
     """
-    gatk MarkDuplicates -I ${bam} -O ${meta.id}.dedup.bam \\
+    gatk --java-options "-Xmx${(int)(task.memory.toGiga()*0.8)}g" MarkDuplicates \\
+        -I ${bam} -O ${meta.id}.dedup.bam \\
         -M ${meta.id}.metrics.txt --REMOVE_DUPLICATES false --CREATE_INDEX true
     echo '"${task.process}": {gatk4: MarkDuplicates}' > versions.yml
     """
@@ -125,15 +126,16 @@ process GATK_CALL {
     def minmq = "--minimum-mapping-quality ${params.gatk_min_mapping_quality}"
     def maxr  = "--max-reads-per-alignment-start ${params.gatk_max_reads_per_align_start}"
     def soft  = params.gatk_dont_use_soft_clipped ? '--dont-use-soft-clipped-bases' : ''
+    def xmx   = "-Xmx${(int)(task.memory.toGiga()*0.8)}g"
     if (params.polymorphism_mode)
         """
-        gatk Mutect2 -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
+        gatk --java-options "${xmx}" Mutect2 -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
             ${minbq} ${minmq} ${maxr} ${soft} --callable-depth ${params.gatk_callable_depth}
         echo '"${task.process}": {gatk4: Mutect2}' > versions.yml
         """
     else
         """
-        gatk HaplotypeCaller -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
+        gatk --java-options "${xmx}" HaplotypeCaller -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
             --sample-ploidy ${params.ploidy} -ERC NONE \\
             ${minbq} ${minmq} ${maxr} ${soft} \\
             --standard-min-confidence-threshold-for-calling ${params.gatk_call_conf}
