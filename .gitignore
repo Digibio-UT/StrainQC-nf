@@ -1,0 +1,51 @@
+# ─── Nextflow runtime ────────────────────────────────────────────────
+.nextflow/
+.nextflow.log*
+work/
+results/
+report*.html
+timeline*.html
+trace*.txt
+dag*.html
+.nextflow.pid
+
+# ─── Reference DBs & large data (NEVER commit — stage via setup step) ─
+# Kraken2 DB, MASH refseq.msh, BLAST nt, reference FASTAs/GBKs, reads, BAMs
+data/
+databases/
+assets/dbs/
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.fasta
+*.fa
+*.fna
+*.gbk
+*.gb
+*.bam
+*.bai
+*.vcf
+*.vcf.gz
+*.msh
+*.tsv
+
+# ─── Secrets — NEVER commit (learned from the old repo) ──────────────
+.env
+*.env
+*_key
+*.pem
+*.key
+id_rsa*
+hpc_key
+
+# ─── Python / launcher venv ──────────────────────────────────────────
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ─── OS / editor ─────────────────────────────────────────────────────
+.DS_Store
+.vscode/
+.idea/
