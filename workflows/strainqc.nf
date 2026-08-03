@@ -1,6 +1,12 @@
 /*
  * Main StrainQC workflow. Two variant-calling paths (breseq | gatk) converge on a
  * single EMIT_RESULTS process that produces the frozen results.json contract.
+ *
+ * ⚠️  The EMIT_RESULTS input is an 11-slot tuple (see modules/local/report.nf). Absent
+ *     optional slots are filled with the empty placeholder assets/NO_FILE, which
+ *     emit_results.py reads as "step skipped". This channel wiring has NOT yet been
+ *     validated with a real Nextflow run — do `nextflow run . -profile test,docker -stub`
+ *     as the next step (see README Roadmap).
  */
 
 include { BRESEQ }                                       from '../modules/local/breseq.nf'
@@ -18,7 +24,11 @@ workflow STRAINQC {
     ch_reference      // path
 
     main:
-    def PLACEHOLDER = file("${projectDir}/assets/NO_FILE")   // for optional report inputs
+    // Empty placeholder for optional EMIT_RESULTS slots (emit_results.py reads empty → skipped).
+    def NF = file("${projectDir}/assets/NO_FILE")
+
+    // Helper: coalesce a joined channel value (may be null from remainder joins) to NF.
+    def orNF = { v -> v ?: NF }
 
     if (params.variant_caller == 'gatk') {
         PREPARE_REFERENCE(ch_reference)
@@ -26,45 +36,56 @@ workflow STRAINQC {
 
         BWA_MEM2_ALIGN(ch_reads, refset)
         GATK_MARKDUPLICATES(BWA_MEM2_ALIGN.out.bam)
-        def bam = GATK_MARKDUPLICATES.out.bam
+        def bam = GATK_MARKDUPLICATES.out.bam                 // [meta, bam, bai]
         GATK_CALL(bam, refset)
 
         SAMTOOLS_DEPTH(bam)
         SAMTOOLS_FLAGSTAT(bam)
         SAMTOOLS_UNMAPPED(bam)
 
-        // evidence needs bam + vcf together
-        def bam_vcf = bam.join(GATK_CALL.out.vcf)          // [meta, bam, bai, vcf]
+        def bam_vcf = bam.join(GATK_CALL.out.vcf)             // [meta, bam, bai, vcf]
         VARIANT_EVIDENCE(bam_vcf, refset)
 
-        // contamination runs on UNMAPPED reads in the GATK path
-        KRAKEN2(SAMTOOLS_UNMAPPED.out.unmapped.map { m, f -> [m, f] }, params.kraken2_db ? file(params.kraken2_db) : [])
+        // contamination on UNMAPPED reads (GATK path)
+        KRAKEN2(SAMTOOLS_UNMAPPED.out.unmapped, params.kraken2_db ? file(params.kraken2_db) : [])
         MASH_SCREEN(SAMTOOLS_UNMAPPED.out.unmapped, params.mash_db ? file(params.mash_db) : [])
 
-        // assemble report inputs (variant_source = vcf)
-        ch_report = GATK_CALL.out.vcf
-            .join(SAMTOOLS_DEPTH.out.coverage)
-            .join(SAMTOOLS_FLAGSTAT.out.flagstat)
-            .join(KRAKEN2.out.report,   remainder: true)
-            .join(MASH_SCREEN.out.screen, remainder: true)
-            .join(VARIANT_EVIDENCE.out.evidence, remainder: true)
-            .map { it.collect { v -> v ?: PLACEHOLDER } }
+        // Assemble the 11-slot EMIT_RESULTS tuple keyed by meta, filling gaps with NF.
+        ch_report = GATK_CALL.out.vcf                                       // [meta, vcf]
+            .combine(ch_reference)                                          // + reference
+            .join(SAMTOOLS_DEPTH.out.coverage,       remainder: true)
+            .join(SAMTOOLS_FLAGSTAT.out.flagstat,    remainder: true)
+            .join(KRAKEN2.out.report,                remainder: true)
+            .join(MASH_SCREEN.out.screen,            remainder: true)
+            .join(VARIANT_EVIDENCE.out.evidence,     remainder: true)
+            .join(SAMTOOLS_UNMAPPED.out.unmapped,    remainder: true)
+            .map { meta, vcf, ref, cov, flag, krak, mash, evid, unmap ->
+                tuple(meta, vcf, ref,
+                      orNF(cov), orNF(flag), orNF(krak), orNF(mash),
+                      NF /*mash_unmapped: TODO wire second MASH on unmapped*/,
+                      NF /*blast fallback: TODO wire BLASTN_REMOTE when no kraken DB*/,
+                      orNF(evid), orNF(unmap))
+            }
 
     } else {   // ── breseq path ───────────────────────────────────────
         BRESEQ(ch_reads, ch_reference)
 
-        // contamination runs on the RAW reads in the breseq path
+        // contamination on RAW reads (breseq path)
         KRAKEN2(ch_reads, params.kraken2_db ? file(params.kraken2_db) : [])
         MASH_SCREEN(ch_reads, params.mash_db ? file(params.mash_db) : [])
 
-        // breseq produces its own coverage/flagstat/evidence inside output/ — pass placeholders
-        // for the samtools-derived files; the report parser reads them from the breseq tree.
-        ch_report = BRESEQ.out.outdir
-            .map { m, d -> [m, d, PLACEHOLDER, PLACEHOLDER] }
+        // breseq produces coverage/read-stats/evidence inside its own output/ tree, so the
+        // samtools-derived slots are placeholders; emit_results.py reads them from breseq-dir.
+        ch_report = BRESEQ.out.outdir                                       // [meta, outdir]
+            .combine(ch_reference)                                          // + reference
             .join(KRAKEN2.out.report,     remainder: true)
             .join(MASH_SCREEN.out.screen, remainder: true)
-            .map { it + [PLACEHOLDER] }   // evidence dir slot
-            .map { it.collect { v -> v ?: PLACEHOLDER } }
+            .map { meta, outdir, ref, krak, mash ->
+                tuple(meta, outdir, ref,
+                      NF /*coverage*/, NF /*flagstat*/,
+                      orNF(krak), orNF(mash),
+                      NF /*mash_unmapped*/, NF /*blast*/, NF /*evidence*/, NF /*unmapped*/)
+            }
     }
 
     EMIT_RESULTS(ch_report)

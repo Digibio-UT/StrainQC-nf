@@ -1,0 +1,4 @@
+# Python deps for bin/emit_results.py (the report step).
+# Only beautifulsoup4 is a third-party dep — GBK/VCF/kraken/mash parsing use the stdlib.
+# The report process container (nextflow.config params.containers.report) must provide these.
+beautifulsoup4>=4.11
