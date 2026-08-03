@@ -51,16 +51,16 @@ workflow STRAINQC {
         MASH_SCREEN(SAMTOOLS_UNMAPPED.out.unmapped, params.mash_db ? file(params.mash_db) : [])
 
         // Assemble the 11-slot EMIT_RESULTS tuple keyed by meta, filling gaps with NF.
+        // (reference is one value for all samples → appended in the map, not joined.)
         ch_report = GATK_CALL.out.vcf                                       // [meta, vcf]
-            .combine(ch_reference)                                          // + reference
             .join(SAMTOOLS_DEPTH.out.coverage,       remainder: true)
             .join(SAMTOOLS_FLAGSTAT.out.flagstat,    remainder: true)
             .join(KRAKEN2.out.report,                remainder: true)
             .join(MASH_SCREEN.out.screen,            remainder: true)
             .join(VARIANT_EVIDENCE.out.evidence,     remainder: true)
             .join(SAMTOOLS_UNMAPPED.out.unmapped,    remainder: true)
-            .map { meta, vcf, ref, cov, flag, krak, mash, evid, unmap ->
-                tuple(meta, vcf, ref,
+            .map { meta, vcf, cov, flag, krak, mash, evid, unmap ->
+                tuple(meta, vcf, ch_reference,
                       orNF(cov), orNF(flag), orNF(krak), orNF(mash),
                       NF /*mash_unmapped: TODO wire second MASH on unmapped*/,
                       NF /*blast fallback: TODO wire BLASTN_REMOTE when no kraken DB*/,
@@ -77,11 +77,10 @@ workflow STRAINQC {
         // breseq produces coverage/read-stats/evidence inside its own output/ tree, so the
         // samtools-derived slots are placeholders; emit_results.py reads them from breseq-dir.
         ch_report = BRESEQ.out.outdir                                       // [meta, outdir]
-            .combine(ch_reference)                                          // + reference
             .join(KRAKEN2.out.report,     remainder: true)
             .join(MASH_SCREEN.out.screen, remainder: true)
-            .map { meta, outdir, ref, krak, mash ->
-                tuple(meta, outdir, ref,
+            .map { meta, outdir, krak, mash ->
+                tuple(meta, outdir, ch_reference,
                       NF /*coverage*/, NF /*flagstat*/,
                       orNF(krak), orNF(mash),
                       NF /*mash_unmapped*/, NF /*blast*/, NF /*evidence*/, NF /*unmapped*/)
