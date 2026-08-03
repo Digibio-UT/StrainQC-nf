@@ -20,9 +20,11 @@ process PREPARE_REFERENCE {
 
     script:
     """
-    # Convert GBK→FASTA if needed (mirrors _gbk_to_fasta; here via samtools/awk or gatk).
+    # Normalise reference to reference.fasta (GBK→FASTA if needed; skip self-copy when the
+    # input is already named reference.fasta, which the staged symlink can be).
     case "${reference}" in
-        *.gbk|*.gb|*.genbank) TODO_gbk_to_fasta "${reference}" reference.fasta ;;
+        *.gbk|*.gb|*.genbank) gbk_to_fasta.py "${reference}" reference.fasta ;;
+        reference.fasta)      : ;;   # already the target name — use as-is
         *)                    cp "${reference}" reference.fasta ;;
     esac
     samtools faidx reference.fasta
@@ -34,8 +36,8 @@ process PREPARE_REFERENCE {
         gatk4: \$(gatk --version 2>&1 | grep -oP 'GATK\\) v\\K[0-9.]+' || echo NA)
     END_VERSIONS
     """
-    // NOTE: PREPARE_REFERENCE needs samtools + bwa-mem2 + gatk together.
-    // TODO: use a mulled multi-tool container, or split into 3 processes.
+    // NOTE: under -profile *,apptainer this needs samtools+bwa-mem2+gatk in one image.
+    // Under hpc_modules the beforeScript loads all three. TODO: split for the container path.
 
     stub:
     """
