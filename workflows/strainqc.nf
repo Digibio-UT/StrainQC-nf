@@ -14,7 +14,10 @@ include { PREPARE_REFERENCE; BWA_MEM2_ALIGN;
           GATK_MARKDUPLICATES; GATK_CALL }               from '../modules/local/gatk.nf'
 include { SAMTOOLS_DEPTH; SAMTOOLS_FLAGSTAT;
           SAMTOOLS_UNMAPPED; VARIANT_EVIDENCE }          from '../modules/local/qc.nf'
-include { KRAKEN2; MASH_SCREEN; BLASTN_REMOTE }          from '../modules/local/contamination.nf'
+include { KRAKEN2;
+          MASH_SCREEN as MASH_RAW;
+          MASH_SCREEN as MASH_UNMAPPED;
+          BLASTN_REMOTE }                               from '../modules/local/contamination.nf'
 include { EMIT_RESULTS }                                 from '../modules/local/report.nf'
 
 workflow STRAINQC {
@@ -46,9 +49,14 @@ workflow STRAINQC {
         def bam_vcf = bam.join(GATK_CALL.out.vcf)             // [meta, bam, bai, vcf]
         VARIANT_EVIDENCE(bam_vcf, refset)
 
-        // contamination on UNMAPPED reads (GATK path)
-        KRAKEN2(SAMTOOLS_UNMAPPED.out.unmapped, params.kraken2_db ? file(params.kraken2_db) : [])
-        MASH_SCREEN(SAMTOOLS_UNMAPPED.out.unmapped, params.mash_db ? file(params.mash_db) : [])
+        // Contamination (matches old app): Kraken2 on UNMAPPED → contaminants;
+        // MASH on RAW reads → mash_results (identifies dominant + contaminant strains);
+        // MASH on UNMAPPED → mash_unmapped_results. Each skipped if its DB param is unset.
+        def kdb = params.kraken2_db ? file(params.kraken2_db) : []
+        def mdb = params.mash_db    ? file(params.mash_db)    : []
+        KRAKEN2(SAMTOOLS_UNMAPPED.out.unmapped, kdb)
+        MASH_RAW(ch_reads, mdb)
+        MASH_UNMAPPED(SAMTOOLS_UNMAPPED.out.unmapped, mdb)
 
         // Assemble the 11-slot EMIT_RESULTS tuple keyed by meta, filling gaps with NF.
         // (reference is one value for all samples → appended in the map, not joined.)
@@ -56,13 +64,14 @@ workflow STRAINQC {
             .join(SAMTOOLS_DEPTH.out.coverage,       remainder: true)
             .join(SAMTOOLS_FLAGSTAT.out.flagstat,    remainder: true)
             .join(KRAKEN2.out.report,                remainder: true)
-            .join(MASH_SCREEN.out.screen,            remainder: true)
+            .join(MASH_RAW.out.screen,               remainder: true)
+            .join(MASH_UNMAPPED.out.screen,          remainder: true)
             .join(VARIANT_EVIDENCE.out.evidence,     remainder: true)
             .join(SAMTOOLS_UNMAPPED.out.unmapped,    remainder: true)
-            .map { meta, vcf, cov, flag, krak, mash, evid, unmap ->
+            .map { meta, vcf, cov, flag, krak, mashraw, mashunmap, evid, unmap ->
                 tuple(meta, vcf, ch_reference,
-                      orNF(cov), orNF(flag), orNF(krak), orNF(mash),
-                      NF /*mash_unmapped: TODO wire second MASH on unmapped*/,
+                      orNF(cov), orNF(flag), orNF(krak),
+                      orNF(mashraw), orNF(mashunmap),
                       NF /*blast fallback: TODO wire BLASTN_REMOTE when no kraken DB*/,
                       orNF(evid), orNF(unmap))
             }
@@ -70,15 +79,15 @@ workflow STRAINQC {
     } else {   // ── breseq path ───────────────────────────────────────
         BRESEQ(ch_reads, ch_reference)
 
-        // contamination on RAW reads (breseq path)
+        // contamination on RAW reads (breseq path; breseq's own unmapped extraction TODO)
         KRAKEN2(ch_reads, params.kraken2_db ? file(params.kraken2_db) : [])
-        MASH_SCREEN(ch_reads, params.mash_db ? file(params.mash_db) : [])
+        MASH_RAW(ch_reads, params.mash_db ? file(params.mash_db) : [])
 
         // breseq produces coverage/read-stats/evidence inside its own output/ tree, so the
         // samtools-derived slots are placeholders; emit_results.py reads them from breseq-dir.
         ch_report = BRESEQ.out.outdir                                       // [meta, outdir]
-            .join(KRAKEN2.out.report,     remainder: true)
-            .join(MASH_SCREEN.out.screen, remainder: true)
+            .join(KRAKEN2.out.report,  remainder: true)
+            .join(MASH_RAW.out.screen, remainder: true)
             .map { meta, outdir, krak, mash ->
                 tuple(meta, outdir, ch_reference,
                       NF /*coverage*/, NF /*flagstat*/,

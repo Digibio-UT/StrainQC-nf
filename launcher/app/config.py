@@ -26,6 +26,13 @@ class Settings:
     # Optional extra args passed verbatim to `nextflow run` (e.g. "--hpc_account xyz").
     NF_EXTRA_ARGS = os.getenv("STRAINQC_NF_EXTRA_ARGS", "")
 
+    # Reference DBs for contamination detection. Site-specific → set via env (not committed).
+    # UT HPC (old SlurmApp locations):
+    #   STRAINQC_KRAKEN2_DB=/gpfs/helios/home/etais/hpc_marko.looke/DTU_project/SlurmApp/backend/data/kraken_db
+    #   STRAINQC_MASH_DB=/gpfs/helios/home/etais/hpc_marko.looke/DTU_project/SlurmApp/backend/data/mash_db/refseq.msh
+    KRAKEN2_DB = os.getenv("STRAINQC_KRAKEN2_DB")   # dir; None → Kraken2 skipped
+    MASH_DB    = os.getenv("STRAINQC_MASH_DB")      # refseq.msh; None → MASH skipped
+
     ALLOWED_UPLOAD_EXT = (
         ".fastq", ".fastq.gz", ".fq", ".fq.gz",
         ".fasta", ".fna", ".fa", ".gbk", ".gb",

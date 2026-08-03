@@ -71,6 +71,12 @@ def start_job(job_id: str, read_paths: List[Path], reference: Path, options: dic
                 val = "true" if val else "false"
             cmd += [f"--{key}", str(val)]
 
+    # Reference DBs for contamination detection — only if configured and present on disk.
+    if settings.KRAKEN2_DB and os.path.exists(settings.KRAKEN2_DB):
+        cmd += ["--kraken2_db", settings.KRAKEN2_DB]
+    if settings.MASH_DB and os.path.exists(settings.MASH_DB):
+        cmd += ["--mash_db", settings.MASH_DB]
+
     if settings.NF_EXTRA_ARGS:
         cmd += shlex.split(settings.NF_EXTRA_ARGS)
 
