@@ -25,10 +25,14 @@ proven `module load` stack (no containers yet). Multi-tool steps work because th
 ```bash
 module load nextflow/25.10.2
 cd StrainQC-nf
-nextflow run . -profile test,hpc_modules            # local executor (login node)
-# or, to exercise the scheduler:
 nextflow run . -profile test,slurm,hpc_modules      # one Slurm job per process
 ```
+
+**Always use the `slurm` executor** — UT HPC rules prohibit running compute on login nodes.
+The lightweight Nextflow orchestrator itself sits on the login node (fine); every actual
+tool runs as a Slurm job. A Slurm `--account` is mandatory (default `ealloc_bioeng_h-1`);
+override with `--hpc_account <acct> --hpc_queue <partition>`. For long real runs, launch the
+orchestrator inside a small `sbatch`/`tmux` session so it survives disconnects.
 
 Check the result against `assets/test/EXPECTED.md`:
 
