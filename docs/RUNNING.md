@@ -16,21 +16,19 @@ nextflow run . -profile test -stub
 Expect: all processes complete, `results/testsample/results.json` exists (stub content).
 If it errors, the message points at the offending process/channel — paste it back.
 
-## 2. Real smoke test on the HPC — Apptainer + synthetic data
+## 2. Real smoke test on the HPC — modules + synthetic data (current path)
 
-Uses the tiny bundled dataset (`assets/test/`, one planted SNP at CHR1:1000).
+Uses the tiny bundled dataset (`assets/test/`, one planted SNP at CHR1:1000) and the
+proven `module load` stack (no containers yet). Multi-tool steps work because the
+`hpc_modules` beforeScript loads the whole environment.
 
 ```bash
-module load nextflow/25.10.2 apptainer/1.4.1
-export NXF_APPTAINER_CACHEDIR=$HOME/.apptainer_cache   # reuse SIFs across runs
+module load nextflow/25.10.2
 cd StrainQC-nf
-
-# On a login node this submits nothing heavy, but prefer the Slurm executor:
-nextflow run . -profile test,hpc
+nextflow run . -profile test,hpc_modules            # local executor (login node)
+# or, to exercise the scheduler:
+nextflow run . -profile test,slurm,hpc_modules      # one Slurm job per process
 ```
-
-- `-profile test,apptainer` runs the executor locally (fine for this tiny job).
-- `-profile test,hpc` submits each process as a Slurm job (Apptainer + `executor=slurm`).
 
 Check the result against `assets/test/EXPECTED.md`:
 
@@ -38,8 +36,19 @@ Check the result against `assets/test/EXPECTED.md`:
 cat results/testsample/results.json    # expect exactly one SNP mutation at position 1000
 ```
 
-> ⚠️ The real run needs the `PREPARE_REFERENCE` container question resolved (it currently
-> assumes samtools+bwa-mem2+gatk in one image; see README Roadmap #3). `-stub` does not.
+If your conda env / module names differ from the SlurmApp defaults, override the whole
+activation line:
+
+```bash
+nextflow run . -profile test,hpc_modules \
+    --hpc_pre_command 'module load miniconda3 ; conda activate <your_env> ; module load gatk/<ver> bwa-mem2/<ver>'
+```
+
+### Later: containers (portable path, for cloud/Seqera)
+
+`-profile test,apptainer` / `-profile hpc` use Biocontainers instead of modules. Blocked
+until multi-tool processes are split into single-tool steps (README Roadmap) — the modules
+path above is the interim.
 
 ## 3. A real experiment
 
