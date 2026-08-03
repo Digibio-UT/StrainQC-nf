@@ -1,10 +1,11 @@
 /*
  * Final report process — the single point that emits results.json.
- * Ports backend/app/pipeline/parsers.py (breseq HTML/GD, kraken report, mash, VCF).
+ * Runs bin/emit_results.py, the port of backend/app/pipeline/parsers.py + manager.py
+ * assembly. See docs/API_CONTRACT.md for the exact schema. (`manta_vcf` intentionally absent.)
  *
- * CONTRACT: results.json MUST match docs/API_CONTRACT.md exactly on every backend,
- * so the existing React frontend + FastAPI serving layer work unchanged.
- * (Note: `manta_vcf` was removed from the contract in the working app — do NOT emit it.)
+ * Optional inputs use ONE empty placeholder file (assets/NO_FILE): emit_results.py treats
+ * any empty / NO_*-named path as "that step didn't run" (matches manager.py's os.path.exists
+ * guards), so skipped steps (no Kraken DB, breseq path, etc.) just pass the placeholder.
  */
 process EMIT_RESULTS {
     tag   { meta.id }
@@ -14,29 +15,40 @@ process EMIT_RESULTS {
 
     input:
     tuple val(meta),
-          path(variant_source),      // breseq output/ dir  OR  gatk vcf
-          path(coverage,   stageAs: 'coverage.tsv'),
-          path(flagstat,   stageAs: 'flagstat.txt'),
-          path(kraken,     stageAs: 'kraken.report'),
-          path(mash,       stageAs: 'mash_screen.tab'),
-          path(evidence)               // evidence/ dir (may be empty)
+          path(variant_src),                                // breseq 'output/' dir OR gatk .vcf
+          path(reference),                                  // reference (name → results.reference_file)
+          path(coverage,     stageAs: 'coverage.tsv'),
+          path(flagstat,     stageAs: 'flagstat.txt'),
+          path(kraken,       stageAs: 'kraken.report'),
+          path(mash,         stageAs: 'mash_screen.tab'),
+          path(mash_unmap,   stageAs: 'mash_unmapped.tab'),
+          path(blast,        stageAs: 'blast_results.tsv'),
+          path(evidence,     stageAs: 'evidence'),          // dir of per-variant JSON
+          path(unmapped)                                    // 0..n FASTQ (names → unmapped_files)
 
     output:
-    tuple val(meta), path("results.json"), emit: results
+    tuple val(meta), path('results.json'), emit: results
+    path 'high_confidence_snps.csv', optional: true
+    path 'coverage.tsv',             optional: true         // re-published for the /coverage endpoint
 
     script:
+    def variant_arg  = params.variant_caller == 'gatk' ? "--vcf ${variant_src}"
+                                                        : "--breseq-dir ${variant_src}"
+    def unmapped_arg = unmapped ? "--unmapped ${unmapped}" : ''
     """
     emit_results.py \\
-        --job-id       ${meta.id} \\
-        --caller       ${params.variant_caller} \\
+        --job-id ${meta.id} \\
+        --caller ${params.variant_caller} \\
         --polymorphism ${params.polymorphism_mode} \\
-        --variant-src  ${variant_source} \\
-        --coverage     coverage.tsv \\
-        --flagstat     flagstat.txt \\
-        --kraken       kraken.report \\
-        --mash         mash_screen.tab \\
-        --evidence-dir ${evidence} \\
-        --coverage-resolution ${params.coverage_resolution} \\
+        --reference ${reference} --reference-gbk ${reference} \\
+        ${variant_arg} \\
+        --coverage coverage.tsv \\
+        --flagstat flagstat.txt \\
+        --kraken kraken.report \\
+        --mash mash_screen.tab --mash-unmapped mash_unmapped.tab \\
+        --blast blast_results.tsv \\
+        --evidence-dir evidence \\
+        ${unmapped_arg} \\
         --out results.json
     """
 

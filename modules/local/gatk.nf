@@ -20,13 +20,15 @@ process PREPARE_REFERENCE {
 
     script:
     """
-    # Convert GBK→FASTA if needed (mirrors _gbk_to_fasta; here via samtools/awk or gatk).
+    # Normalise reference to reference.fasta (GBK→FASTA if needed; skip self-copy when the
+    # input is already named reference.fasta, which the staged symlink can be).
     case "${reference}" in
-        *.gbk|*.gb|*.genbank) TODO_gbk_to_fasta "${reference}" reference.fasta ;;
+        *.gbk|*.gb|*.genbank) gbk_to_fasta.py "${reference}" reference.fasta ;;
+        reference.fasta)      : ;;   # already the target name — use as-is
         *)                    cp "${reference}" reference.fasta ;;
     esac
     samtools faidx reference.fasta
-    gatk CreateSequenceDictionary -R reference.fasta -O reference.dict
+    gatk --java-options "-Xmx${(int)(task.memory.toGiga()*0.8)}g" CreateSequenceDictionary -R reference.fasta -O reference.dict
     bwa-mem2 index reference.fasta
 
     cat <<-END_VERSIONS > versions.yml
@@ -34,8 +36,8 @@ process PREPARE_REFERENCE {
         gatk4: \$(gatk --version 2>&1 | grep -oP 'GATK\\) v\\K[0-9.]+' || echo NA)
     END_VERSIONS
     """
-    // NOTE: PREPARE_REFERENCE needs samtools + bwa-mem2 + gatk together.
-    // TODO: use a mulled multi-tool container, or split into 3 processes.
+    // NOTE: under -profile *,apptainer this needs samtools+bwa-mem2+gatk in one image.
+    // Under hpc_modules the beforeScript loads all three. TODO: split for the container path.
 
     stub:
     """
@@ -92,7 +94,8 @@ process GATK_MARKDUPLICATES {
 
     script:
     """
-    gatk MarkDuplicates -I ${bam} -O ${meta.id}.dedup.bam \\
+    gatk --java-options "-Xmx${(int)(task.memory.toGiga()*0.8)}g" MarkDuplicates \\
+        -I ${bam} -O ${meta.id}.dedup.bam \\
         -M ${meta.id}.metrics.txt --REMOVE_DUPLICATES false --CREATE_INDEX true
     echo '"${task.process}": {gatk4: MarkDuplicates}' > versions.yml
     """
@@ -123,15 +126,16 @@ process GATK_CALL {
     def minmq = "--minimum-mapping-quality ${params.gatk_min_mapping_quality}"
     def maxr  = "--max-reads-per-alignment-start ${params.gatk_max_reads_per_align_start}"
     def soft  = params.gatk_dont_use_soft_clipped ? '--dont-use-soft-clipped-bases' : ''
+    def xmx   = "-Xmx${(int)(task.memory.toGiga()*0.8)}g"
     if (params.polymorphism_mode)
         """
-        gatk Mutect2 -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
+        gatk --java-options "${xmx}" Mutect2 -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
             ${minbq} ${minmq} ${maxr} ${soft} --callable-depth ${params.gatk_callable_depth}
         echo '"${task.process}": {gatk4: Mutect2}' > versions.yml
         """
     else
         """
-        gatk HaplotypeCaller -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
+        gatk --java-options "${xmx}" HaplotypeCaller -R ${fasta} -I ${bam} -O ${meta.id}.vcf \\
             --sample-ploidy ${params.ploidy} -ERC NONE \\
             ${minbq} ${minmq} ${maxr} ${soft} \\
             --standard-min-confidence-threshold-for-calling ${params.gatk_call_conf}

@@ -49,3 +49,7 @@ venv/
 .DS_Store
 .vscode/
 .idea/
+
+# ─── Exception: tiny bundled test fixtures ARE tracked (see bin/make_testdata.py) ─
+!assets/test/reference.fasta
+!assets/test/reads.fastq.gz

@@ -58,13 +58,18 @@ A dedicated `setup` step for fresh cloud sites is a **TODO** (drives Vallo's sto
 
 ## Roadmap
 
-1. **Port parsers** → `bin/emit_results.py` (breseq HTML/GD, VCF, kraken, mash) to match the contract.
-2. **`gbk→fasta` + evidence** helpers (`extract_evidence.py`) into `bin/`; resolve multi-tool
+1. ~~**Port parsers** → `bin/emit_results.py`~~ ✅ done (breseq HTML/GD, VCF+GBK annotation,
+   kraken, mash, hc-SNP CSV, flagstat read-stats, evidence-link attach; unit-tested on synthetic
+   fixtures). Fixed a double-append bug in the original BLAST parser along the way.
+2. **Validate the workflow wiring** — `nextflow run . -profile test,docker -stub` (channel
+   assembly in `workflows/strainqc.nf` is written but not yet run; Nextflow wasn't available
+   at authoring time).
+3. **`gbk→fasta` + evidence** helpers (`extract_evidence.py`) into `bin/`; resolve multi-tool
    container for `PREPARE_REFERENCE` (samtools+bwa-mem2+gatk).
-3. **Pin container digests** in `nextflow.config` (tags are placeholders — ⚠️ verify).
-4. **Test profile** with a tiny bundled dataset; wire CI.
-5. **Thin launcher**: adapt the existing FastAPI `/analysis/start` to shell out to `nextflow run`
+4. **Pin container digests** in `nextflow.config` (tags are placeholders — ⚠️ verify).
+5. **Test profile** with a tiny bundled dataset; wire CI.
+6. **Thin launcher**: adapt the existing FastAPI `/analysis/start` to shell out to `nextflow run`
    (replaces Celery + Slurm SSH executor).
-6. **Confirm HPC specifics** with Vallo/Hamza (partition, `--account`).
-7. **Auth/multi-tenancy** before any shared instance (current app: `allow_origins=["*"]`, no auth).
+7. **Confirm HPC specifics** with Vallo/Hamza (partition, `--account`).
+8. **Auth/multi-tenancy** before any shared instance (current app: `allow_origins=["*"]`, no auth).
 ```

@@ -17,15 +17,21 @@ workflow {
     if (!params.input)     error "Provide --input <samplesheet.csv>"
     if (!params.reference) error "Provide --reference <genome.gbk|.fasta>"
 
-    // Parse samplesheet → [ meta, [reads] ]
+    // Parse samplesheet → [ meta, [reads] ]. Read paths may be absolute, a URL, or
+    // relative to the samplesheet's own directory (keeps bundled test fixtures portable).
+    def sheet   = file(params.input, checkIfExists: true)
+    def sheetDir = sheet.parent
+    def resolveRead = { p ->
+        (p =~ /^([a-z]+:\/\/|\/)/) ? file(p, checkIfExists: true)
+                                   : file("${sheetDir}/${p}", checkIfExists: true)
+    }
     ch_reads = Channel
-        .fromPath(params.input, checkIfExists: true)
+        .fromPath(sheet)
         .splitCsv(header: true)
         .map { row ->
             def meta  = [ id: row.sample ]
-            def reads = row.fastq_2 ? [ file(row.fastq_1, checkIfExists: true),
-                                        file(row.fastq_2, checkIfExists: true) ]
-                                    : [ file(row.fastq_1, checkIfExists: true) ]
+            def reads = row.fastq_2 ? [ resolveRead(row.fastq_1), resolveRead(row.fastq_2) ]
+                                    : [ resolveRead(row.fastq_1) ]
             [ meta, reads ]
         }
 
