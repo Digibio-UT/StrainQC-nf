@@ -6,14 +6,16 @@ unchanged. Runs **on the HPC** (or any host that can launch the pipeline and rea
 
 ## Status
 
-First cut — **execution core** implemented:
+Implemented — **execution core** + first read-only viewers:
 `POST /upload/`, `GET /upload/files`, `POST /analysis/start` (→ `nextflow run`),
 `GET /analysis/status/{job_id}`, `GET /analysis/results/{job_id}`,
-`GET /analysis/active_jobs`, `POST /analysis/stop/{job_id}`, and the `/results_files` static mount.
+`GET /analysis/active_jobs`, `POST /analysis/stop/{job_id}`, `/results_files` static mount,
+`GET /analysis/coverage/{job_id}` (downsampled + cached), and
+`GET /analysis/genome_features/{job_id}` (BioPython GBK parse + saved edits).
 
-**Not yet ported** (return 501): the read-only viewers `coverage`, `genome_features`,
-`evidence`, `consensus*`, `annotations*`. They're backend-agnostic file readers over
-`RESULTS_DIR/<job_id>/` — next increment.
+**Not yet ported:** `evidence`, `consensus*`, `annotations*` (GET/POST). Backend-agnostic
+readers over `RESULTS_DIR/<job_id>/` — next increment. Note `genome_features` needs a **GBK**
+reference (the synthetic test uses FASTA, so it 404s there — expected; use a GBK reference to see genes).
 
 ## Run
 
