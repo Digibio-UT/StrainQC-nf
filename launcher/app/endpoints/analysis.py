@@ -52,7 +52,10 @@ async def start_analysis(request: AnalysisRequest):
         raise HTTPException(status_code=404, detail="Reference genome file not found")
 
     job_id = f"job_{request.file_ids[0]}_{str(uuid.uuid4())[:8]}"
-    info = runner.start_job(job_id, read_paths, reference, request.options or {})
+    try:
+        info = runner.start_job(job_id, read_paths, reference, request.options or {})
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return {"job_id": job_id, "task_id": str(info["pid"]),
             "status": "queued", "message": "Analysis job has been launched via Nextflow."}

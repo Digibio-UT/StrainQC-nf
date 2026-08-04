@@ -71,16 +71,29 @@ def start_job(job_id: str, read_paths: List[Path], reference: Path, options: dic
                 val = "true" if val else "false"
             cmd += [f"--{key}", str(val)]
 
+    # Reference DBs for contamination detection — only if configured and present on disk.
+    if settings.KRAKEN2_DB and os.path.exists(settings.KRAKEN2_DB):
+        cmd += ["--kraken2_db", settings.KRAKEN2_DB]
+    if settings.MASH_DB and os.path.exists(settings.MASH_DB):
+        cmd += ["--mash_db", settings.MASH_DB]
+
     if settings.NF_EXTRA_ARGS:
         cmd += shlex.split(settings.NF_EXTRA_ARGS)
 
     log_path = launch_dir / "nextflow.stdout.log"
     log_fh = open(log_path, "w")
-    proc = subprocess.Popen(
-        cmd, cwd=str(launch_dir),
-        stdout=log_fh, stderr=subprocess.STDOUT,
-        start_new_session=True,   # survive if the request thread goes away
-    )
+    try:
+        proc = subprocess.Popen(
+            cmd, cwd=str(launch_dir),
+            stdout=log_fh, stderr=subprocess.STDOUT,
+            start_new_session=True,   # survive if the request thread goes away
+        )
+    except FileNotFoundError:
+        log_fh.close()
+        raise RuntimeError(
+            f"'{settings.NEXTFLOW_BIN}' not found on PATH. Load Nextflow before starting the "
+            f"launcher (e.g. `module load nextflow/25.10.2`), or set NEXTFLOW_BIN to its full path."
+        )
     _JOBS[job_id] = {
         "proc": proc, "log": str(log_path), "cmd": " ".join(shlex.quote(c) for c in cmd),
         "started_at": time.time(), "launch_dir": str(launch_dir),

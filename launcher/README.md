@@ -24,12 +24,18 @@ cd launcher
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# On the HPC, make sure `nextflow` is on PATH (module load nextflow/25.10.2) and point
-# the data dirs at a filesystem the compute nodes can see:
+# REQUIRED on the HPC: put `nextflow` on PATH (the launcher shells out to it).
+module load nextflow/25.10.2
+
+# Point the data dirs at a filesystem the compute nodes can see:
 export PIPELINE_DIR=/gpfs/helios/projects/dtu_project/StrainQC-nf
 export STRAINQC_DATA_DIR=/gpfs/helios/projects/dtu_project/strainqc_launcher_data
 export STRAINQC_NF_PROFILES=slurm,hpc_modules          # default
 # export STRAINQC_NF_EXTRA_ARGS="--hpc_account ealloc_bioeng_h-1 --hpc_queue main"
+
+# Contamination-detection reference DBs (else kraken/mash report "skipped"):
+export STRAINQC_KRAKEN2_DB=/gpfs/helios/home/etais/hpc_marko.looke/DTU_project/SlurmApp/backend/data/kraken_db
+export STRAINQC_MASH_DB=/gpfs/helios/home/etais/hpc_marko.looke/DTU_project/SlurmApp/backend/data/mash_db/refseq.msh
 
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
@@ -60,4 +66,6 @@ read directly — same layout and contract as the old app.
 | `STRAINQC_DATA_DIR` | `launcher_data/` | base for uploads/results/work |
 | `STRAINQC_NF_PROFILES` | `slurm,hpc_modules` | Nextflow `-profile` |
 | `STRAINQC_NF_EXTRA_ARGS` | – | extra `nextflow run` args |
+| `STRAINQC_KRAKEN2_DB` | – | Kraken2 DB dir (unset → Kraken2 skipped) |
+| `STRAINQC_MASH_DB` | – | MASH `refseq.msh` (unset → MASH skipped) |
 | `NEXTFLOW_BIN` | `nextflow` | nextflow executable |
