@@ -7,15 +7,18 @@ process BRESEQ {
     tag   { meta.id }
     label 'process_high'
     container params.containers.breseq
-    publishDir "${params.outdir}/${meta.id}/breseq", mode: 'copy'
+    // Publish the breseq tree at results/<id>/breseq/ so its static evidence HTML resolves
+    // at /results_files/<id>/breseq/output/evidence/… (the URL the frontend builds). The
+    // breseq -o dir is therefore named `breseq` and published into the job root.
+    publishDir "${params.outdir}/${meta.id}", mode: 'copy'
 
     input:
     tuple val(meta), path(reads)
     path  reference
 
     output:
-    tuple val(meta), path("output"), emit: outdir
-    tuple val(meta), path("output/output.gd"), emit: gd, optional: true
+    tuple val(meta), path("breseq"), emit: outdir
+    tuple val(meta), path("breseq/output/output.gd"), emit: gd, optional: true
     path  "versions.yml", emit: versions
 
     script:
@@ -28,8 +31,8 @@ process BRESEQ {
     def covstr = params.breseq_consensus_min_cov_each_strand > 0 ? "--consensus-minimum-total-coverage-each-strand ${params.breseq_consensus_min_cov_each_strand}" : ''
     def target = params.breseq_targeted_sequencing ? '--targeted-sequencing' : ''
     """
-    mkdir -p output/evidence
-    breseq -r ${reference} ${reads} -o output -j ${task.cpus} \\
+    mkdir -p breseq/output/evidence
+    breseq -r ${reference} ${reads} -o breseq -j ${task.cpus} \\
         ${poly} ${limit} ${baseq} ${minmq} ${polyfq} ${nojunc} ${covstr} ${target}
 
     cat <<-END_VERSIONS > versions.yml
@@ -40,7 +43,7 @@ process BRESEQ {
 
     stub:
     """
-    mkdir -p output/output/evidence
-    touch output/output.gd versions.yml
+    mkdir -p breseq/output/evidence
+    touch breseq/output/output.gd versions.yml
     """
 }
