@@ -28,6 +28,32 @@ process SAMTOOLS_DEPTH {
     "touch coverage.tsv"
 }
 
+// Coverage for the breseq path — runs samtools depth on breseq's own alignment
+// (<outdir>/data/reference.bam), mirroring the old app so results.json gets coverage_file
+// (the frontend gates BOTH the coverage plot and the genome browser on that field).
+process BRESEQ_COVERAGE {
+    tag   { meta.id }
+    label 'process_low'
+    container params.containers.samtools
+
+    input:
+    tuple val(meta), path(breseq_out)
+
+    output:
+    tuple val(meta), path("coverage.tsv"), emit: coverage, optional: true
+
+    script:
+    """
+    bam=\$(find ${breseq_out} -path '*/data/reference.bam' | head -n1)
+    if [ -n "\$bam" ]; then
+        samtools depth -a "\$bam" > coverage.tsv
+    fi
+    """
+
+    stub:
+    "touch coverage.tsv"
+}
+
 process SAMTOOLS_FLAGSTAT {
     tag   { meta.id }
     label 'process_low'

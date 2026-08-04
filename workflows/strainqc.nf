@@ -12,8 +12,8 @@
 include { BRESEQ }                                       from '../modules/local/breseq.nf'
 include { PREPARE_REFERENCE; BWA_MEM2_ALIGN;
           GATK_MARKDUPLICATES; GATK_CALL }               from '../modules/local/gatk.nf'
-include { SAMTOOLS_DEPTH; SAMTOOLS_FLAGSTAT;
-          SAMTOOLS_UNMAPPED; VARIANT_EVIDENCE }          from '../modules/local/qc.nf'
+include { SAMTOOLS_DEPTH; SAMTOOLS_FLAGSTAT; SAMTOOLS_UNMAPPED;
+          VARIANT_EVIDENCE; BRESEQ_COVERAGE }            from '../modules/local/qc.nf'
 include { KRAKEN2;
           MASH_SCREEN as MASH_RAW;
           MASH_SCREEN as MASH_UNMAPPED;
@@ -79,18 +79,22 @@ workflow STRAINQC {
     } else {   // ── breseq path ───────────────────────────────────────
         BRESEQ(ch_reads, ch_reference)
 
+        // Coverage from breseq's own BAM (so results.json gets coverage_file → the frontend
+        // renders the coverage plot + genome browser). read_stats/evidence come from the
+        // breseq output/ tree, which emit_results.py reads directly from breseq-dir.
+        BRESEQ_COVERAGE(BRESEQ.out.outdir)
+
         // contamination on RAW reads (breseq path; breseq's own unmapped extraction TODO)
         KRAKEN2(ch_reads, params.kraken2_db ? file(params.kraken2_db) : [])
         MASH_RAW(ch_reads, params.mash_db ? file(params.mash_db) : [])
 
-        // breseq produces coverage/read-stats/evidence inside its own output/ tree, so the
-        // samtools-derived slots are placeholders; emit_results.py reads them from breseq-dir.
         ch_report = BRESEQ.out.outdir                                       // [meta, outdir]
-            .join(KRAKEN2.out.report,  remainder: true)
-            .join(MASH_RAW.out.screen, remainder: true)
-            .map { meta, outdir, krak, mash ->
+            .join(BRESEQ_COVERAGE.out.coverage, remainder: true)
+            .join(KRAKEN2.out.report,           remainder: true)
+            .join(MASH_RAW.out.screen,          remainder: true)
+            .map { meta, outdir, cov, krak, mash ->
                 tuple(meta, outdir, ch_reference,
-                      NF /*coverage*/, NF /*flagstat*/,
+                      orNF(cov), NF /*flagstat: breseq read_stats come from summary.html*/,
                       orNF(krak), orNF(mash),
                       NF /*mash_unmapped*/, NF /*blast*/, NF /*evidence*/, NF /*unmapped*/)
             }
