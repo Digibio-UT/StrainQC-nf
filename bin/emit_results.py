@@ -670,18 +670,18 @@ def build_results(args) -> Dict[str, Any]:
         results["steps"]["mash"] = "skipped"
 
     # ── contamination: Kraken2, else BLAST fallback ──────────────────────────
-    if results["unmapped_files"]:
-        if _present(args.kraken):
-            results["contaminants"] = parse_kraken_report(args.kraken)
-            results["steps"]["kraken"] = "completed"
-        else:
-            results["steps"]["kraken"] = "skipped_no_db"
-            if _present(args.blast):
-                hits = parse_blast_results(args.blast)
-                results["blast_results"] = hits
-                results["steps"]["blast"] = "completed" if hits else "failed_or_empty"
+    # Parse whenever a Kraken report is present, regardless of unmapped_files. (GATK runs
+    # Kraken on unmapped reads; breseq runs it on raw reads and doesn't populate
+    # unmapped_files — the old unmapped-gated logic wrongly dropped the breseq report.)
+    if _present(args.kraken):
+        results["contaminants"] = parse_kraken_report(args.kraken)
+        results["steps"]["kraken"] = "completed"
+    elif _present(args.blast):
+        hits = parse_blast_results(args.blast)
+        results["blast_results"] = hits
+        results["steps"]["blast"] = "completed" if hits else "failed_or_empty"
     else:
-        results["steps"]["kraken"] = "skipped_no_unmapped"
+        results["steps"]["kraken"] = "skipped_no_unmapped" if not results["unmapped_files"] else "skipped_no_db"
 
     results["status"] = "completed"
     return results
