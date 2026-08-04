@@ -43,10 +43,11 @@ process BRESEQ_COVERAGE {
     tuple val(meta), path("coverage.tsv"), emit: coverage, optional: true
 
     script:
+    // breseq_out is staged as a symlink; reference the BAM by path (path resolution follows
+    // the symlink, unlike `find`, which won't descend a symlinked starting point).
     """
-    bam=\$(find ${breseq_out} -path '*/data/reference.bam' | head -n1)
-    if [ -n "\$bam" ]; then
-        samtools depth -a "\$bam" > coverage.tsv
+    if [ -f ${breseq_out}/data/reference.bam ]; then
+        samtools depth -a ${breseq_out}/data/reference.bam > coverage.tsv
     fi
     """
 
