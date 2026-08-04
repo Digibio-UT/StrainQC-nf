@@ -1,4 +1,10 @@
-# Python deps for bin/emit_results.py (the report step).
-# Only beautifulsoup4 is a third-party dep — GBK/VCF/kraken/mash parsing use the stdlib.
-# The report process container (nextflow.config params.containers.report) must provide these.
-beautifulsoup4>=4.11
+# Python deps for the bin/ pipeline scripts.
+#
+# emit_results.py, gbk_to_fasta.py, extract_evidence.py, make_testdata.py are all PURE
+# STDLIB — no pip installs required. (breseq HTML parsing uses html.parser, GBK parsing is
+# hand-rolled, so BeautifulSoup / BioPython are NOT needed here.)
+#
+# extract_evidence.py additionally requires the `samtools` CLI on PATH (provided by the
+# hpc_modules beforeScript or the process container), not a pip package.
+#
+# → nothing to install for the report/evidence pipeline steps.
