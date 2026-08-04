@@ -64,6 +64,7 @@ async def start_analysis(request: AnalysisRequest):
 @router.get("/status/{job_id}")
 async def get_status(job_id: str):
     """Prefer results.json on disk (authoritative); fall back to the process state."""
+    job_id = job_id.strip()   # tolerate stray whitespace from the "load existing job" field
     job_dir = settings.RESULTS_DIR / job_id
     results_file = job_dir / "results.json"
 
@@ -93,6 +94,7 @@ async def get_status(job_id: str):
 
 @router.get("/results/{job_id}")
 async def get_results(job_id: str):
+    job_id = job_id.strip()
     results_file = settings.RESULTS_DIR / job_id / "results.json"
     if not results_file.exists():
         raise HTTPException(status_code=404, detail="Results not found or analysis not complete")
@@ -128,6 +130,7 @@ async def stop_job(job_id: str):
 @router.get("/coverage/{job_id}")
 async def get_coverage(job_id: str, resolution: int = 1000, chrom: str = Query(None)):
     """Downsampled per-base coverage for plotting, cached per (chrom, resolution)."""
+    job_id = job_id.strip()
     job_dir = settings.RESULTS_DIR / job_id
     coverage_file = job_dir / "coverage.tsv"
     if not coverage_file.exists():
@@ -185,6 +188,7 @@ async def get_coverage(job_id: str, resolution: int = 1000, chrom: str = Query(N
 @router.get("/genome_features/{job_id}")
 async def get_genome_features(job_id: str):
     """Gene features (with exon `parts`) from the reference GBK, plus any saved edits."""
+    job_id = job_id.strip()
     from Bio import SeqIO  # heavy import kept local so the service starts without BioPython
 
     job_dir = settings.RESULTS_DIR / job_id

@@ -20,6 +20,7 @@ router = APIRouter()
 
 @router.get("/evidence/{job_id}", response_class=HTMLResponse)
 async def get_gatk_evidence(job_id: str, path: str = Query(..., description="Relative path under gatk/, e.g. evidence/file.json")):
+    job_id = job_id.strip()
     job_dir = str(settings.RESULTS_DIR / job_id)
     gatk_dir = os.path.join(job_dir, "gatk")
     normalized = os.path.normpath(path).replace("\\", "/")

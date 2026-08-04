@@ -26,6 +26,7 @@ import json
 import os
 import re
 import sys
+from html.parser import HTMLParser
 from typing import Any, Dict, List
 
 
@@ -57,77 +58,129 @@ def _strip_version(acc: str) -> str:
 # Parsers (ported verbatim in behaviour from parsers.py, made self-contained)
 # ─────────────────────────────────────────────────────────────────────────────
 
+class _BreseqTableParser(HTMLParser):
+    """Stdlib HTML parser (no BeautifulSoup) that captures every table's rows/cells,
+    flags the table containing the breseq `mutation_header_row`, and records the index of
+    the table following each <h2> (for the summary read-stats lookup). Handles nesting via
+    an open-table stack."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.tables: List[Dict[str, Any]] = []   # document order; {'has_mut_header', 'rows'}
+        self.h2_next_table: Dict[str, int] = {}   # h2 text -> index of next table opened
+        self._stack: List[Dict[str, Any]] = []    # open tables (innermost last)
+        self._row = None
+        self._cell = None
+        self._in_cell = False
+        self._link = None
+        self._in_h2 = False
+        self._h2_parts: List[str] = []
+
+    @staticmethod
+    def _cls(attrs) -> List[str]:
+        for k, v in attrs:
+            if k == "class" and v:
+                return v.split()
+        return []
+
+    @staticmethod
+    def _attr(attrs, name):
+        for k, v in attrs:
+            if k == name:
+                return v
+        return None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "table":
+            t = {"has_mut_header": False, "rows": []}
+            self._stack.append(t)
+            self.tables.append(t)
+        elif tag == "tr" and self._stack:
+            self._row = {"classes": self._cls(attrs), "cells": []}
+            self._stack[-1]["rows"].append(self._row)
+        elif tag in ("td", "th") and self._row is not None:
+            self._cell = {"text": [], "links": []}
+            self._in_cell = True
+            if tag == "th" and "mutation_header_row" in self._cls(attrs) and self._stack:
+                self._stack[-1]["has_mut_header"] = True
+        elif tag == "a" and self._in_cell:
+            self._link = {"href": self._attr(attrs, "href"), "text": []}
+        elif tag == "h2":
+            self._in_h2 = True
+            self._h2_parts = []
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._link is not None:
+            if self._link["href"]:
+                self._cell["links"].append(("".join(self._link["text"]).strip(), self._link["href"]))
+            self._link = None
+        elif tag in ("td", "th") and self._in_cell:
+            self._cell["text"] = "".join(self._cell["text"]).strip()
+            self._row["cells"].append(self._cell)
+            self._cell = None
+            self._in_cell = False
+        elif tag == "tr":
+            self._row = None
+        elif tag == "table" and self._stack:
+            self._stack.pop()
+        elif tag == "h2":
+            self.h2_next_table["".join(self._h2_parts).strip()] = len(self.tables)
+            self._in_h2 = False
+
+    def handle_data(self, data):
+        if self._in_cell:
+            self._cell["text"].append(data)
+        if self._link is not None:
+            self._link["text"].append(data)
+        if self._in_h2:
+            self._h2_parts.append(data)
+
+
 def parse_breseq_html(html_file_path: str) -> List[Dict[str, Any]]:
     """Parse breseq index.html 'Predicted mutations' table (richer than the GD file)."""
-    from bs4 import BeautifulSoup
     mutations: List[Dict[str, Any]] = []
     if not _present(html_file_path):
         return []
     try:
+        parser = _BreseqTableParser()
         with open(html_file_path, "r") as f:
-            soup = BeautifulSoup(f, "html.parser")
-        header_row = soup.find("th", class_="mutation_header_row")
-        if not header_row:
-            return []
-        table = header_row.find_parent("table")
+            parser.feed(f.read())
+        table = next((t for t in parser.tables if t["has_mut_header"]), None)
         if not table:
             return []
 
-        for row in table.find_all("tr"):
-            row_class = row.get("class", [])
-            if not row_class:
+        valid = {"normal_table_row", "polymorphism_table_row",
+                 "alternate_table_row_0", "alternate_table_row_1"}
+        for row in table["rows"]:
+            if not any(c in valid for c in row["classes"]):
                 continue
-            valid = ["normal_table_row", "polymorphism_table_row",
-                     "alternate_table_row_0", "alternate_table_row_1"]
-            if not any(c in row_class for c in valid):
+            cells = row["cells"]
+            if len(cells) < 6:
                 continue
+            txt = [c["text"] for c in cells]
 
-            cols = row.find_all("td")
-            if len(cols) < 6:
-                continue
+            evidence = txt[0]
+            evidence_links = [{"text": t, "url": h} for (t, h) in cells[0]["links"]]
 
-            evidence_cell = cols[0]
-            evidence = evidence_cell.get_text(strip=True)
-            evidence_links = []
-            for link in evidence_cell.find_all("a"):
-                href = link.get("href")
-                if href:
-                    evidence_links.append({"text": link.get_text(strip=True), "url": href})
-
-            col1_text = cols[1].get_text(strip=True)
-            col1_stripped = col1_text.replace(",", "")
+            col1_stripped = txt[1].replace(",", "")
             if ":" in col1_stripped:
                 col1_stripped = col1_stripped.split(":")[0]
             is_multi_ref = not col1_stripped.isdigit()
 
             seq_id = position = mutation = annotation = gene = description = ""
             freq = "100%"
-
             if is_multi_ref:
-                seq_id = cols[1].get_text(strip=True)
-                position = cols[2].get_text(strip=True)
-                mutation = cols[3].get_text(strip=True)
-                if len(cols) >= 8:
-                    freq = cols[4].get_text(strip=True)
-                    annotation = cols[5].get_text(strip=True)
-                    gene = cols[6].get_text(strip=True)
-                    description = cols[7].get_text(strip=True)
-                elif len(cols) == 7:
-                    annotation = cols[4].get_text(strip=True)
-                    gene = cols[5].get_text(strip=True)
-                    description = cols[6].get_text(strip=True)
+                seq_id, position, mutation = txt[1], txt[2], txt[3]
+                if len(cells) >= 8:
+                    freq, annotation, gene, description = txt[4], txt[5], txt[6], txt[7]
+                elif len(cells) == 7:
+                    annotation, gene, description = txt[4], txt[5], txt[6]
             else:
-                position = cols[1].get_text(strip=True)
-                mutation = cols[2].get_text(strip=True)
-                if len(cols) >= 7:
-                    freq = cols[3].get_text(strip=True)
-                    annotation = cols[4].get_text(strip=True)
-                    gene = cols[5].get_text(strip=True)
-                    description = cols[6].get_text(strip=True)
-                elif len(cols) == 6:
-                    annotation = cols[3].get_text(strip=True)
-                    gene = cols[4].get_text(strip=True)
-                    description = cols[5].get_text(strip=True)
+                position, mutation = txt[1], txt[2]
+                if len(cells) >= 7:
+                    freq, annotation, gene, description = txt[3], txt[4], txt[5], txt[6]
+                elif len(cells) == 6:
+                    annotation, gene, description = txt[3], txt[4], txt[5]
 
             mut_type = "SNP"
             if "→" in mutation and len(mutation) < 10:
@@ -140,17 +193,10 @@ def parse_breseq_html(html_file_path: str) -> List[Dict[str, Any]]:
                 mut_type = "MOB"
 
             mutations.append({
-                "type": mut_type,
-                "evidence": evidence,
-                "evidence_links": evidence_links,
-                "position": position,
-                "mutation": mutation,
-                "freq": freq,
-                "annotation": annotation,
-                "gene": gene,
-                "description": description,
-                "seq_id": seq_id,
-                "details": [freq, annotation],
+                "type": mut_type, "evidence": evidence, "evidence_links": evidence_links,
+                "position": position, "mutation": mutation, "freq": freq,
+                "annotation": annotation, "gene": gene, "description": description,
+                "seq_id": seq_id, "details": [freq, annotation],
             })
     except Exception as e:  # noqa: BLE001 — match original defensive behaviour
         print(f"Error parsing HTML: {e}", file=sys.stderr)
@@ -164,23 +210,20 @@ def parse_breseq_summary(summary_file_path: str) -> Dict[str, Any]:
     if not _present(summary_file_path):
         return stats
     try:
-        from bs4 import BeautifulSoup
+        parser = _BreseqTableParser()
         with open(summary_file_path, "r") as f:
-            soup = BeautifulSoup(f, "html.parser")
-        header_h2 = soup.find("h2", string="Read File Information")
-        if not header_h2:
+            parser.feed(f.read())
+        idx = parser.h2_next_table.get("Read File Information")
+        if idx is None or idx >= len(parser.tables):
             return stats
-        table = header_h2.find_next("table")
-        if not table:
-            return stats
-        for row in table.find_all("tr"):
-            cols = row.find_all("td")
+        for row in parser.tables[idx]["rows"]:
+            cols = [c["text"] for c in row["cells"]]
             if len(cols) < 3:
                 continue
-            if "total" in cols[1].get_text(strip=True).lower():
+            if "total" in cols[1].lower():
                 try:
-                    stats["total_reads"] = int(cols[2].get_text(strip=True).replace(",", ""))
-                    stats["mapped_percentage"] = float(cols[7].get_text(strip=True).replace("%", ""))
+                    stats["total_reads"] = int(cols[2].replace(",", ""))
+                    stats["mapped_percentage"] = float(cols[7].replace("%", ""))
                     stats["unmapped_percentage"] = round(100.0 - stats["mapped_percentage"], 1)
                     stats["unmapped_reads"] = int(stats["total_reads"] * (stats["unmapped_percentage"] / 100.0))
                 except Exception:
@@ -627,18 +670,18 @@ def build_results(args) -> Dict[str, Any]:
         results["steps"]["mash"] = "skipped"
 
     # ── contamination: Kraken2, else BLAST fallback ──────────────────────────
-    if results["unmapped_files"]:
-        if _present(args.kraken):
-            results["contaminants"] = parse_kraken_report(args.kraken)
-            results["steps"]["kraken"] = "completed"
-        else:
-            results["steps"]["kraken"] = "skipped_no_db"
-            if _present(args.blast):
-                hits = parse_blast_results(args.blast)
-                results["blast_results"] = hits
-                results["steps"]["blast"] = "completed" if hits else "failed_or_empty"
+    # Parse whenever a Kraken report is present, regardless of unmapped_files. (GATK runs
+    # Kraken on unmapped reads; breseq runs it on raw reads and doesn't populate
+    # unmapped_files — the old unmapped-gated logic wrongly dropped the breseq report.)
+    if _present(args.kraken):
+        results["contaminants"] = parse_kraken_report(args.kraken)
+        results["steps"]["kraken"] = "completed"
+    elif _present(args.blast):
+        hits = parse_blast_results(args.blast)
+        results["blast_results"] = hits
+        results["steps"]["blast"] = "completed" if hits else "failed_or_empty"
     else:
-        results["steps"]["kraken"] = "skipped_no_unmapped"
+        results["steps"]["kraken"] = "skipped_no_unmapped" if not results["unmapped_files"] else "skipped_no_db"
 
     results["status"] = "completed"
     return results
