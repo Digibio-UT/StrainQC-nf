@@ -24,8 +24,10 @@ cd launcher
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# On the HPC, make sure `nextflow` is on PATH (module load nextflow/25.10.2) and point
-# the data dirs at a filesystem the compute nodes can see:
+# REQUIRED on the HPC: put `nextflow` on PATH (the launcher shells out to it).
+module load nextflow/25.10.2
+
+# Point the data dirs at a filesystem the compute nodes can see:
 export PIPELINE_DIR=/gpfs/helios/projects/dtu_project/StrainQC-nf
 export STRAINQC_DATA_DIR=/gpfs/helios/projects/dtu_project/strainqc_launcher_data
 export STRAINQC_NF_PROFILES=slurm,hpc_modules          # default

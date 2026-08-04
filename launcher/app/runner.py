@@ -82,11 +82,18 @@ def start_job(job_id: str, read_paths: List[Path], reference: Path, options: dic
 
     log_path = launch_dir / "nextflow.stdout.log"
     log_fh = open(log_path, "w")
-    proc = subprocess.Popen(
-        cmd, cwd=str(launch_dir),
-        stdout=log_fh, stderr=subprocess.STDOUT,
-        start_new_session=True,   # survive if the request thread goes away
-    )
+    try:
+        proc = subprocess.Popen(
+            cmd, cwd=str(launch_dir),
+            stdout=log_fh, stderr=subprocess.STDOUT,
+            start_new_session=True,   # survive if the request thread goes away
+        )
+    except FileNotFoundError:
+        log_fh.close()
+        raise RuntimeError(
+            f"'{settings.NEXTFLOW_BIN}' not found on PATH. Load Nextflow before starting the "
+            f"launcher (e.g. `module load nextflow/25.10.2`), or set NEXTFLOW_BIN to its full path."
+        )
     _JOBS[job_id] = {
         "proc": proc, "log": str(log_path), "cmd": " ".join(shlex.quote(c) for c in cmd),
         "started_at": time.time(), "launch_dir": str(launch_dir),
