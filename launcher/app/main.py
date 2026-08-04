@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.endpoints import analysis, upload
+from app.endpoints import analysis, evidence, upload
 
 settings.ensure_dirs()
 
@@ -26,6 +26,7 @@ app.mount("/results_files", StaticFiles(directory=str(settings.RESULTS_DIR)), na
 
 app.include_router(upload.router, prefix=f"{settings.API_V1_STR}/upload", tags=["upload"])
 app.include_router(analysis.router, prefix=f"{settings.API_V1_STR}/analysis", tags=["analysis"])
+app.include_router(evidence.router, prefix=f"{settings.API_V1_STR}/analysis", tags=["analysis"])
 
 
 @app.get("/")

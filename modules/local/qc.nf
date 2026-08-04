@@ -86,12 +86,9 @@ process VARIANT_EVIDENCE {
     script:
     """
     mkdir -p evidence
-    # TODO: port extract_variant_read_evidence() from wrappers.py into bin/extract_evidence.py
-    #   inputs:  ${bam}, ${fasta}, mutations (from ${vcf}), window=${params.evidence_window}, max_reads=${params.evidence_max_reads}
-    #   output:  evidence/<chrom>_<start>_<end>_<n>.json  (schema unchanged from current app)
     extract_evidence.py --bam ${bam} --ref ${fasta} --vcf ${vcf} \\
         --window ${params.evidence_window} --max-reads ${params.evidence_max_reads} \\
-        --out evidence || true
+        --out evidence
     """
 
     stub:
