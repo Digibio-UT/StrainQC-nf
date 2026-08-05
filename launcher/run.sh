@@ -12,6 +12,9 @@ if ! type module &>/dev/null; then
   done
 fi
 module load "${STRAINQC_NEXTFLOW_MODULE:-nextflow/25.10.2}"
+# Load Apptainer too so it's on PATH for the Slurm jobs Nextflow submits (they inherit this
+# env via --export=ALL). Harmless for module-based runs. Skip with STRAINQC_APPTAINER_MODULE=""
+[ "${STRAINQC_APPTAINER_MODULE-apptainer/1.4.1}" ] && module load "${STRAINQC_APPTAINER_MODULE:-apptainer/1.4.1}" || true
 
 export PIPELINE_DIR="${PIPELINE_DIR:-/gpfs/helios/projects/dtu_project/StrainQC-nf}"
 export STRAINQC_DATA_DIR="${STRAINQC_DATA_DIR:-/gpfs/helios/projects/dtu_project/strainqc_launcher_data}"
