@@ -6,7 +6,6 @@
 process BRESEQ {
     tag   { meta.id }
     label 'process_high'
-    container params.containers.breseq
     // Publish the breseq tree at results/<id>/breseq/ so its static evidence HTML resolves
     // at /results_files/<id>/breseq/output/evidence/… (the URL the frontend builds). The
     // breseq -o dir is therefore named `breseq` and published into the job root.

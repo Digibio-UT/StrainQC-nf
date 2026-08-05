@@ -11,7 +11,6 @@
 process SAMTOOLS_DEPTH {
     tag   { meta.id }
     label 'process_low'
-    container params.containers.samtools
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -34,7 +33,6 @@ process SAMTOOLS_DEPTH {
 process BRESEQ_COVERAGE {
     tag   { meta.id }
     label 'process_low'
-    container params.containers.samtools
 
     input:
     tuple val(meta), path(breseq_out)
@@ -58,7 +56,6 @@ process BRESEQ_COVERAGE {
 process SAMTOOLS_FLAGSTAT {
     tag   { meta.id }
     label 'process_low'
-    container params.containers.samtools
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -76,7 +73,6 @@ process SAMTOOLS_FLAGSTAT {
 process SAMTOOLS_UNMAPPED {
     tag   { meta.id }
     label 'process_low'
-    container params.containers.samtools
     publishDir "${params.outdir}/${meta.id}/gatk", mode: 'copy'
 
     input:
@@ -100,7 +96,6 @@ process SAMTOOLS_UNMAPPED {
 process VARIANT_EVIDENCE {
     tag   { meta.id }
     label 'process_medium'
-    container params.containers.report
     publishDir "${params.outdir}/${meta.id}/gatk", mode: 'copy'
 
     input:

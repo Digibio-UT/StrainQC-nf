@@ -7,7 +7,6 @@
 process KRAKEN2 {
     tag   { meta.id }
     label 'process_high'
-    container params.containers.kraken2
     publishDir "${params.outdir}/${meta.id}/contamination", mode: 'copy'
 
     input:
@@ -33,7 +32,6 @@ process KRAKEN2 {
 process MASH_SCREEN {
     tag   { meta.id }
     label 'process_medium'
-    container params.containers.mash
     publishDir "${params.outdir}/${meta.id}/contamination", mode: 'copy'
 
     input:
@@ -58,7 +56,6 @@ process MASH_SCREEN {
 process BLASTN_REMOTE {
     tag   { meta.id }
     label 'process_network'          // network-bound; 1 slot, long wall clock
-    container params.containers.blast
     publishDir "${params.outdir}/${meta.id}/contamination", mode: 'copy'
 
     input:

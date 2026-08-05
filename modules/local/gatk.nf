@@ -8,7 +8,6 @@
 process PREPARE_REFERENCE {
     tag   { reference.baseName }
     label 'process_medium'
-    container params.containers.gatk4
     publishDir "${params.outdir}/reference", mode: 'copy'
 
     input:
@@ -48,7 +47,6 @@ process PREPARE_REFERENCE {
 process BWA_MEM2_ALIGN {
     tag   { meta.id }
     label 'process_high'
-    container params.containers.bwamem2
     publishDir "${params.outdir}/${meta.id}/gatk", mode: 'copy', pattern: '*.bam*'
 
     input:
@@ -83,7 +81,6 @@ process BWA_MEM2_ALIGN {
 process GATK_MARKDUPLICATES {
     tag   { meta.id }
     label 'process_medium'
-    container params.containers.gatk4
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -110,7 +107,6 @@ process GATK_MARKDUPLICATES {
 process GATK_CALL {
     tag   { meta.id }
     label 'process_high'
-    container params.containers.gatk4
     publishDir "${params.outdir}/${meta.id}/gatk", mode: 'copy', pattern: '*.vcf*'
 
     input:

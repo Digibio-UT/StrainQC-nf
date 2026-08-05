@@ -1,0 +1,42 @@
+Bootstrap: docker
+From: mambaorg/micromamba:1.5.10
+
+# All-in-one StrainQC-nf image: every pipeline process runs in this container under
+# -profile apptainer (or docker). Contains the full tool stack + a stdlib Python for the
+# bin/ scripts (emit_results.py, extract_evidence.py, gbk_to_fasta.py).
+#
+# Build on the HPC (see containers/README.md):
+#   module load apptainer/1.4.1
+#   apptainer build --fakeroot strainqc.sif containers/strainqc.def
+#
+# gatk4 / bwa-mem2 pinned to match the validated hpc_modules runs; others float. If the
+# conda solve conflicts, relax a pin and rebuild.
+
+%labels
+    org.opencontainers.image.title       StrainQC-nf
+    org.opencontainers.image.description All-in-one tool image for the StrainQC-nf pipeline
+    org.opencontainers.image.source      https://github.com/Digibio-UT/StrainQC-nf
+
+%post
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    micromamba install -y -n base -c conda-forge -c bioconda \
+        python=3.11 \
+        samtools \
+        bwa-mem2=2.2.1 \
+        gatk4=4.4.0.0 \
+        breseq \
+        kraken2 \
+        mash \
+        blast
+    micromamba clean --all --yes
+
+%environment
+    export PATH="/opt/conda/bin:$PATH"
+    export LC_ALL=C
+    export LANG=C
+
+%test
+    set -e
+    for tool in samtools bwa-mem2 gatk breseq kraken2 mash blastn python3; do
+        command -v "$tool" >/dev/null && echo "OK: $tool" || { echo "MISSING: $tool"; exit 1; }
+    done

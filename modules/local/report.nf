@@ -10,7 +10,6 @@
 process EMIT_RESULTS {
     tag   { meta.id }
     label 'process_low'
-    container params.containers.report
     publishDir "${params.outdir}/${meta.id}", mode: 'copy'
 
     input:
