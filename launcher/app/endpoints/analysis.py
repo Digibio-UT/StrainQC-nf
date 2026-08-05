@@ -17,6 +17,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from app.config import settings
+from app.models import FeatureEdit
 from app import runner
 
 router = APIRouter()
@@ -288,3 +289,47 @@ async def get_genome_features(job_id: str):
             logger.error("Error applying annotations: %s", e)
 
     return {"genome_id": selected.name, "length": total_length, "features": features}
+
+
+# ── Annotation edits (persisted to annotations.json; applied by genome_features) ──────────
+
+@router.post("/annotations/{job_id}")
+async def save_annotations(job_id: str, edit: FeatureEdit):
+    """Persist one edit/delete/add to the job's annotations.json (keyed by feature id)."""
+    job_id = job_id.strip()
+    job_dir = settings.RESULTS_DIR / job_id
+    if not job_dir.exists():
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    annotations_file = job_dir / "annotations.json"
+    current = {}
+    if annotations_file.exists():
+        try:
+            content = annotations_file.read_text()
+            if content:
+                current = json.loads(content)
+        except Exception as e:
+            logger.warning("Could not read existing annotations: %s", e)
+
+    key = edit.original_id
+    if not key and edit.action == "add":
+        key = f"add_{edit.new_locus_tag or edit.new_name or 'unnamed'}"
+    if not key:
+        raise HTTPException(status_code=400, detail="Missing original_id for annotation edit")
+
+    current[key] = edit.model_dump()
+    annotations_file.write_text(json.dumps(current, indent=2))
+    return {"message": "Annotation saved successfully", "edit": edit.model_dump()}
+
+
+@router.get("/annotations/{job_id}")
+async def get_annotations(job_id: str):
+    """Return saved annotation edits for a job (or an empty set)."""
+    job_id = job_id.strip()
+    annotations_file = settings.RESULTS_DIR / job_id / "annotations.json"
+    if annotations_file.exists():
+        try:
+            return json.loads(annotations_file.read_text())
+        except Exception:
+            return {"edits": []}
+    return {"edits": []}
