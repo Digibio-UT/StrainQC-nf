@@ -21,6 +21,7 @@ From: mambaorg/micromamba:1.5.10
     export MAMBA_ROOT_PREFIX=/opt/conda
     micromamba install -y -n base -c conda-forge -c bioconda \
         python=3.11 \
+        procps-ng \
         samtools \
         bwa-mem2=2.2.1 \
         gatk4=4.4.0.0 \
@@ -37,6 +38,6 @@ From: mambaorg/micromamba:1.5.10
 
 %test
     set -e
-    for tool in samtools bwa-mem2 gatk breseq kraken2 mash blastn python3; do
+    for tool in samtools bwa-mem2 gatk breseq kraken2 mash blastn python3 ps; do
         command -v "$tool" >/dev/null && echo "OK: $tool" || { echo "MISSING: $tool"; exit 1; }
     done
