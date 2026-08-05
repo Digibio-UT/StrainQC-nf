@@ -54,3 +54,6 @@ venv/
 !assets/test/reference.fasta
 !assets/test/reads.fastq.gz
 launcher_data/
+
+# Apptainer/Singularity images (build locally; do not commit)
+*.sif

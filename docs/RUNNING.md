@@ -48,11 +48,27 @@ nextflow run . -profile test,hpc_modules \
     --hpc_pre_command 'module load miniconda3 ; conda activate <your_env> ; module load gatk/<ver> bwa-mem2/<ver>'
 ```
 
-### Later: containers (portable path, for cloud/Seqera)
+## 3. Containers (portable path — Seqera/cloud)
 
-`-profile test,apptainer` / `-profile hpc` use Biocontainers instead of modules. Blocked
-until multi-tool processes are split into single-tool steps (README Roadmap) — the modules
-path above is the interim.
+Instead of `module load`, run every process in one all-in-one Apptainer image (no HPC
+modules needed). Build it once (see [`containers/README.md`](../containers/README.md)):
+
+```bash
+module load apptainer/1.4.1
+apptainer build --fakeroot containers/strainqc.sif containers/strainqc.def
+```
+
+Then run with the container profile, pointing at the SIF:
+
+```bash
+nextflow run . -profile test,slurm,apptainer \
+    --strainqc_container $PWD/containers/strainqc.sif
+```
+
+`-profile apptainer` enables the runtime; `--strainqc_container <path>` sets the image for
+every process. This is the same pipeline that runs under `hpc_modules` — only the tool
+provisioning changes — and it's what makes cloud/Seqera deployment possible (swap the SIF
+path for a `docker://…` registry URI).
 
 ## 3. A real experiment
 
