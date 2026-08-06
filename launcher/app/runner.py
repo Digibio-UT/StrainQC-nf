@@ -37,6 +37,18 @@ def resolve_upload(file_id: str) -> Optional[Path]:
     return None
 
 
+def resolve_reference(ref_id: str) -> Optional[Path]:
+    """Resolve a reference selection: the curated library first (friendly names), then uploads.
+    Matches by exact name or prefix (the dropdown sends the full filename)."""
+    for d in (settings.REFERENCE_DIR, settings.UPLOAD_DIR):
+        if not d.exists():
+            continue
+        for p in sorted(d.iterdir()):
+            if p.is_file() and p.name.startswith(ref_id):
+                return p
+    return None
+
+
 def _write_samplesheet(job_id: str, read_paths: List[Path], launch_dir: Path) -> Path:
     sheet = launch_dir / "samplesheet.csv"
     r1 = str(read_paths[0])

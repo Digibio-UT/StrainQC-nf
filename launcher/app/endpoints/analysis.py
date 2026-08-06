@@ -48,7 +48,7 @@ async def start_analysis(request: AnalysisRequest):
 
     if not request.reference_genome_id:
         raise HTTPException(status_code=400, detail="reference_genome_id is required")
-    reference = runner.resolve_upload(request.reference_genome_id)
+    reference = runner.resolve_reference(request.reference_genome_id)
     if not reference:
         raise HTTPException(status_code=404, detail="Reference genome file not found")
 
@@ -203,18 +203,20 @@ async def get_genome_features(job_id: str):
         except Exception:
             ref_name = None
         if ref_name:
-            p = settings.UPLOAD_DIR / ref_name
-            if p.exists():
-                candidates.append(p)
-            if not ref_name.endswith((".gbk", ".gb")):     # FASTA used → look for a sibling GBK
-                base = os.path.splitext(ref_name)[0]
-                for ext in (".gbk", ".gb"):
-                    gp = settings.UPLOAD_DIR / (base + ext)
-                    if gp.exists():
-                        candidates.append(gp)
-    if settings.UPLOAD_DIR.exists():
-        candidates += [p for p in settings.UPLOAD_DIR.iterdir()
-                       if p.suffix in (".gbk", ".gb") and p not in candidates]
+            for d in (settings.REFERENCE_DIR, settings.UPLOAD_DIR):
+                p = d / ref_name
+                if p.exists():
+                    candidates.append(p)
+                if not ref_name.endswith((".gbk", ".gb")):   # FASTA used → sibling GBK
+                    base = os.path.splitext(ref_name)[0]
+                    for ext in (".gbk", ".gb"):
+                        gp = d / (base + ext)
+                        if gp.exists():
+                            candidates.append(gp)
+    for d in (settings.REFERENCE_DIR, settings.UPLOAD_DIR):
+        if d.exists():
+            candidates += [p for p in d.iterdir()
+                           if p.suffix in (".gbk", ".gb") and p not in candidates]
 
     features, selected, total_length = [], None, 0
     for gbk in candidates:
