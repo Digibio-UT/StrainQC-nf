@@ -21,7 +21,12 @@ export STRAINQC_DATA_DIR="${STRAINQC_DATA_DIR:-/gpfs/helios/projects/dtu_project
 export STRAINQC_KRAKEN2_DB="${STRAINQC_KRAKEN2_DB:-/gpfs/helios/home/etais/hpc_marko.looke/DTU_project/SlurmApp/backend/data/kraken_db}"
 export STRAINQC_MASH_DB="${STRAINQC_MASH_DB:-/gpfs/helios/home/etais/hpc_marko.looke/DTU_project/SlurmApp/backend/data/mash_db/refseq.msh}"
 
+# Seqera token (and any other secrets) — sourced from a chmod-600 file outside the repo.
+# If present, the launcher adds `-with-tower` so browser runs report to Seqera Platform.
+[ -f "${STRAINQC_SECRETS:-$HOME/.config/strainqc/secrets.env}" ] && source "${STRAINQC_SECRETS:-$HOME/.config/strainqc/secrets.env}" || true
+
 echo "nextflow: $(command -v nextflow)"
 echo "PIPELINE_DIR=$PIPELINE_DIR"
 echo "KRAKEN2_DB=$STRAINQC_KRAKEN2_DB   MASH_DB=$STRAINQC_MASH_DB"
+echo "Seqera monitoring: $([ -n "${TOWER_ACCESS_TOKEN:-}" ] && echo on || echo off)"
 exec uvicorn app.main:app --host "${HOST:-0.0.0.0}" --port "${PORT:-8000}"

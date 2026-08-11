@@ -89,6 +89,10 @@ def start_job(job_id: str, read_paths: List[Path], reference: Path, options: dic
     if settings.MASH_DB and os.path.exists(settings.MASH_DB):
         cmd += ["--mash_db", settings.MASH_DB]
 
+    # Stream run telemetry to Seqera Platform when a token is configured.
+    if settings.WITH_TOWER:
+        cmd += ["-with-tower"]
+
     if settings.NF_EXTRA_ARGS:
         cmd += shlex.split(settings.NF_EXTRA_ARGS)
 

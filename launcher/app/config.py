@@ -37,6 +37,13 @@ class Settings:
     KRAKEN2_DB = os.getenv("STRAINQC_KRAKEN2_DB")   # dir; None → Kraken2 skipped
     MASH_DB    = os.getenv("STRAINQC_MASH_DB")      # refseq.msh; None → MASH skipped
 
+    # Seqera Platform monitoring: add `-with-tower` to `nextflow run` so runs stream to
+    # Seqera. Auto-on when TOWER_ACCESS_TOKEN is in the environment (Nextflow reads the token
+    # + optional TOWER_WORKSPACE_ID from env). Force with STRAINQC_WITH_TOWER=true/false.
+    _with_tower = os.getenv("STRAINQC_WITH_TOWER")
+    WITH_TOWER = (_with_tower.lower() in ("1", "true", "yes")
+                  if _with_tower is not None else bool(os.getenv("TOWER_ACCESS_TOKEN")))
+
     ALLOWED_UPLOAD_EXT = (
         ".fastq", ".fastq.gz", ".fq", ".fq.gz",
         ".fasta", ".fna", ".fa", ".gbk", ".gb",
