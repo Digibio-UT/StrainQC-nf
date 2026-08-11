@@ -1,0 +1,53 @@
+name: build-container
+
+# Build the all-in-one StrainQC image and push it to GitHub Container Registry (ghcr.io).
+# The conda solve + image build run on GitHub's runners — no local Docker needed.
+on:
+  push:
+    branches: [main]
+    paths:                  # only rebuild when the image recipe changes
+      - 'containers/Dockerfile'
+      - '.github/workflows/build-container.yml'
+  workflow_dispatch:        # manual "Run workflow" from the Actions tab (also for release builds)
+
+permissions:
+  contents: read
+  packages: write           # lets GITHUB_TOKEN push to ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # GitHub runners have ~14 GB free; the conda image is a few GB. Reclaim space first
+      # so the build doesn't run out mid-solve.
+      - name: Free up disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+          docker image prune -af || true
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image metadata (tags/labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/digibio-ut/strainqc
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: containers
+          file: containers/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
