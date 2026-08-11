@@ -31,8 +31,31 @@ nextflow run . -profile test,slurm,apptainer \
   every process at the SIF (default is the bare name `strainqc.sif`).
 - For a quick local smoke test: `-profile test,apptainer --strainqc_container <path-or-docker-uri>`.
 
-## Later: registry image for cloud / Seqera
+## Registry image (ghcr.io) — for cloud / Seqera / other sites
 
-Convert the same recipe to a Dockerfile and push to `ghcr.io/digibio-ut/strainqc:<tag>`, then
-`--strainqc_container docker://ghcr.io/digibio-ut/strainqc:<tag>`. Cloud/Seqera executors pull
-by URI; no local SIF needed.
+The same tool stack is also published as a registry image so it can run anywhere (cloud
+batch, Seqera, other HPCs) without a local SIF. `containers/Dockerfile` is the registry twin
+of `strainqc.def`; `.github/workflows/build-container.yml` builds and pushes it to
+**`ghcr.io/digibio-ut/strainqc`** on GitHub's runners (no local Docker needed).
+
+### One-time setup
+1. Push this branch / merge to `main` (or trigger the workflow manually from the repo's
+   **Actions → build-container → Run workflow**). Watch it build (~15–30 min).
+2. **Make the package public** (one time): repo/org **Packages → strainqc → Package settings
+   → Change visibility → Public**. Public ghcr packages are free and unlimited to pull.
+   (The source repo can stay private; only the image package is public.)
+
+Tags produced: `latest` (from `main`), `vX.Y.Z` (from git tags `v*`), and a `sha-…` per build.
+
+### Use it
+```bash
+# Anywhere with a container runtime — no SIF file needed:
+nextflow run Digibio-UT/StrainQC-nf -profile test,apptainer \
+    --strainqc_container docker://ghcr.io/digibio-ut/strainqc:latest
+```
+On the HPC you can also pre-pull it into a SIF once and point at that file:
+```bash
+apptainer pull containers/strainqc.sif docker://ghcr.io/digibio-ut/strainqc:latest
+```
+Cloud/Seqera executors just take the `docker://…` URI directly. The big reference databases
+(Kraken2, MASH) are **not** in the image — they're staged separately.
