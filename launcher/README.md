@@ -68,4 +68,22 @@ read directly — same layout and contract as the old app.
 | `STRAINQC_NF_EXTRA_ARGS` | – | extra `nextflow run` args |
 | `STRAINQC_KRAKEN2_DB` | – | Kraken2 DB dir (unset → Kraken2 skipped) |
 | `STRAINQC_MASH_DB` | – | MASH `refseq.msh` (unset → MASH skipped) |
+| `TOWER_ACCESS_TOKEN` | – | Seqera token → adds `-with-tower` (runs stream to Seqera Platform) |
+| `STRAINQC_WITH_TOWER` | auto | force Seqera monitoring on/off (default: on iff a token is set) |
 | `NEXTFLOW_BIN` | `nextflow` | nextflow executable |
+
+### Seqera Platform monitoring
+
+If `TOWER_ACCESS_TOKEN` is in the launcher's environment, every browser-driven run is
+launched with `-with-tower`, so it appears live in Seqera Platform (logs, metrics, timeline).
+`run.sh` sources `~/.config/strainqc/secrets.env` (a chmod-600 file, outside the repo) — put
+the token there:
+
+```bash
+mkdir -p ~/.config/strainqc && chmod 700 ~/.config/strainqc
+printf 'export TOWER_ACCESS_TOKEN=%s\n' '<seqera-token>' > ~/.config/strainqc/secrets.env
+chmod 600 ~/.config/strainqc/secrets.env
+```
+
+Runs land in your **personal** Seqera workspace unless you also set `TOWER_WORKSPACE_ID`
+(add it to the same secrets file) to target a shared org workspace.
