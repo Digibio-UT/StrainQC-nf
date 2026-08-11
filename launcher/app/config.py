@@ -18,6 +18,10 @@ class Settings:
     UPLOAD_DIR  = Path(os.getenv("STRAINQC_UPLOAD_DIR", DATA_DIR / "uploads"))
     RESULTS_DIR = Path(os.getenv("STRAINQC_RESULTS_DIR", DATA_DIR / "results"))
     WORK_DIR    = Path(os.getenv("STRAINQC_WORK_DIR", DATA_DIR / "work"))
+    # Persistent curated reference genomes (friendly-named .gbk), shown in the reference
+    # dropdown alongside uploads and NOT wiped when clearing uploads/. Drop standard genomes
+    # here (e.g. Ecoli_K12_MG1655.gbk, Scerevisiae_S288C.gbk).
+    REFERENCE_DIR = Path(os.getenv("STRAINQC_REFERENCE_DIR", DATA_DIR / "references"))
 
     # Nextflow invocation.
     NEXTFLOW_BIN = os.getenv("NEXTFLOW_BIN", "nextflow")
@@ -39,7 +43,7 @@ class Settings:
     )
 
     def ensure_dirs(self):
-        for d in (self.DATA_DIR, self.UPLOAD_DIR, self.RESULTS_DIR, self.WORK_DIR):
+        for d in (self.DATA_DIR, self.UPLOAD_DIR, self.RESULTS_DIR, self.WORK_DIR, self.REFERENCE_DIR):
             d.mkdir(parents=True, exist_ok=True)
 
 

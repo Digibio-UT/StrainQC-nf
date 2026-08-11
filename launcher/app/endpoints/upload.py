@@ -37,13 +37,23 @@ async def upload_file(file: UploadFile = File(...)):
 
 @router.get("/files")
 async def list_files(type: str = None):
-    if not settings.UPLOAD_DIR.exists():
-        return []
     files = []
-    for p in settings.UPLOAD_DIR.iterdir():
-        if p.name.startswith(".") or not p.is_file():
+    # Curated reference library first (friendly names), then uploads. Skip the library for
+    # non-reference listings.
+    dirs = []
+    if type == "reference":
+        dirs.append(settings.REFERENCE_DIR)
+    dirs.append(settings.UPLOAD_DIR)
+
+    seen = set()
+    for d in dirs:
+        if not d.exists():
             continue
-        if type == "reference" and not p.name.endswith((".gbk", ".gb", ".fasta", ".fna", ".fa")):
-            continue
-        files.append({"filename": p.name, "size": os.path.getsize(p)})
+        for p in sorted(d.iterdir()):
+            if p.name.startswith(".") or not p.is_file() or p.name in seen:
+                continue
+            if type == "reference" and not p.name.endswith((".gbk", ".gb", ".fasta", ".fna", ".fa")):
+                continue
+            seen.add(p.name)
+            files.append({"filename": p.name, "size": os.path.getsize(p)})
     return files

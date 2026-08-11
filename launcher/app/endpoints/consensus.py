@@ -81,6 +81,7 @@ def _find_reference_gbk(job_dir: str):
     from Bio import SeqIO
     from Bio.Seq import UndefinedSequenceError
 
+    reference = str(settings.REFERENCE_DIR)
     upload = str(settings.UPLOAD_DIR)
     seqfiles = str(settings.DATA_DIR / "seq_files")
     results_file = os.path.join(job_dir, "results.json")
@@ -92,16 +93,18 @@ def _find_reference_gbk(job_dir: str):
         except Exception:
             ref_name = None
         if ref_name:
-            for p in (os.path.join(upload, ref_name), os.path.join(seqfiles, ref_name)):
+            for p in (os.path.join(reference, ref_name), os.path.join(upload, ref_name),
+                      os.path.join(seqfiles, ref_name)):
                 if os.path.exists(p):
                     candidates.append(p)
             if not any(candidates) and not ref_name.endswith((".gbk", ".gb")):
                 base = os.path.splitext(ref_name)[0]
-                p_gbk = os.path.join(upload, base + ".gbk")
-                if os.path.exists(p_gbk):
-                    candidates.append(p_gbk)
+                for d in (reference, upload):
+                    p_gbk = os.path.join(d, base + ".gbk")
+                    if os.path.exists(p_gbk):
+                        candidates.append(p_gbk)
 
-    for d in (upload, seqfiles):
+    for d in (reference, upload, seqfiles):
         if os.path.isdir(d):
             for fname in os.listdir(d):
                 if fname.endswith((".gbk", ".gb")):
