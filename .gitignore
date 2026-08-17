@@ -57,3 +57,6 @@ launcher_data/
 
 # Apptainer/Singularity images (build locally; do not commit)
 *.sif
+
+# Local validation dataset (Ottilie ALE, ~480 MB) — never commit
+ottilie_test_data/
