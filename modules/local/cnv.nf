@@ -27,7 +27,7 @@ process CNVKIT_REFERENCE {
 
     script:
     """
-    samtools index -f ${bam}
+    samtools index ${bam}
     cnvkit.py batch \\
         --normal ${bam} \\
         --method wgs \\
@@ -60,9 +60,11 @@ process CNVKIT_CALL {
     script:
     // cnvkit names outputs after the BAM basename: <base>.cns is the segmented call file we
     // want; <base>.bintest.cns is a separate per-bin test (must NOT be picked up instead).
+    // summarize_cnv.py calls aneuploidy by per-chromosome CN relative to the genome median
+    // (robust to mosaic gains, e.g. Ottilie CBR110 chr I ~1.3x).
     def base = bam.baseName
     """
-    samtools index -f ${bam}
+    samtools index ${bam}
     cnvkit.py batch ${bam} \\
         --reference ${reference} \\
         --method wgs \\

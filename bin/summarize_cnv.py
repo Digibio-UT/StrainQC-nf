@@ -18,12 +18,15 @@ import argparse
 import json
 import sys
 
-# Whole-chromosome aneuploidy thresholds (relative to baseline ploidy).
-GAIN_RATIO = 1.4    # mean CN >= 1.4 x baseline  -> gain
-LOSS_RATIO = 0.6    # mean CN <= 0.6 x baseline  -> loss
+# Whole-chromosome aneuploidy thresholds, RELATIVE to the genome-wide median chromosome CN
+# (the euploid baseline for this sample). Using a relative test makes calls robust to MOSAIC
+# aneuploidies — an evolved population that is only partly 2n for a chromosome shows a mean CN
+# of ~1.3x rather than 2x (e.g. Ottilie CBR110 chr I), which a fixed 2x cutoff would miss.
+GAIN_RATIO = 1.20   # chromosome mean CN >= 1.20 x genome-median  -> gain
+LOSS_RATIO = 0.75   # chromosome mean CN <= 0.75 x genome-median  -> loss
 # Fraction of a chromosome's length that must agree in direction to call it WHOLE-chromosome
 # (vs a focal/intrachromosomal event, which we report but do not flag as aneuploidy).
-WHOLE_CHROM_FRACTION = 0.7
+WHOLE_CHROM_FRACTION = 0.5
 # Organellar contigs never get an aneuploidy call (dosage is not nuclear ploidy).
 NON_NUCLEAR = {"Mito", "MT", "chrMito", "chrM", "Mitochondria"}
 
@@ -58,50 +61,58 @@ def read_cns(path):
                 continue
 
 
+def _median(vals):
+    s = sorted(vals)
+    n = len(s)
+    if n == 0:
+        return 0.0
+    return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2.0
+
+
 def summarise(cns_path, fai_path, baseline):
     lengths = read_fai(fai_path)
-    # Accumulate length-weighted copy number and altered length per chromosome.
-    agg = {}  # chrom -> dict
+    # Pass 1: length-weighted mean CN per chromosome + keep segments for the fraction test.
+    agg = {}  # chrom -> {cn_len, len, n, segs:[(len,cn)]}
     for chrom, start, end, log2 in read_cns(cns_path):
         seg_len = max(end - start, 0)
         if seg_len == 0:
             continue
         cn = baseline * (2.0 ** log2)
-        a = agg.setdefault(chrom, {"cn_len": 0.0, "len": 0, "gain_len": 0,
-                                   "loss_len": 0, "n": 0})
+        a = agg.setdefault(chrom, {"cn_len": 0.0, "len": 0, "n": 0, "segs": []})
         a["cn_len"] += cn * seg_len
         a["len"] += seg_len
         a["n"] += 1
-        if cn >= GAIN_RATIO * baseline:
-            a["gain_len"] += seg_len
-        elif cn <= LOSS_RATIO * baseline:
-            a["loss_len"] += seg_len
+        a["segs"].append((seg_len, cn))
+
+    mean_cn = {c: a["cn_len"] / (a["len"] or 1) for c, a in agg.items()}
+    # Euploid baseline for THIS sample = median of nuclear chromosome mean CNs.
+    genome_median = _median([v for c, v in mean_cn.items() if c not in NON_NUCLEAR]) or baseline
 
     rows, aneuploidies = [], []
-    # Iterate in reference (fai) order for stable, genome-ordered output.
-    for chrom in lengths:
+    for chrom in lengths:                       # reference (fai) order → stable output
         if chrom not in agg:
             continue
         a = agg[chrom]
         covered = a["len"] or 1
-        mean_cn = a["cn_len"] / covered
-        gain_frac = a["gain_len"] / covered
-        loss_frac = a["loss_len"] / covered
+        mcn = mean_cn[chrom]
+        gain_len = sum(l for l, cn in a["segs"] if cn >= GAIN_RATIO * genome_median)
+        loss_len = sum(l for l, cn in a["segs"] if cn <= LOSS_RATIO * genome_median)
+        gain_frac, loss_frac = gain_len / covered, loss_len / covered
         altered_frac = max(gain_frac, loss_frac)
 
-        call = "neutral"
-        aneuploidy = False
+        call, aneuploidy = "neutral", False
         if chrom not in NON_NUCLEAR:
-            if mean_cn >= GAIN_RATIO * baseline and gain_frac >= WHOLE_CHROM_FRACTION:
+            if mcn >= GAIN_RATIO * genome_median and gain_frac >= WHOLE_CHROM_FRACTION:
                 call, aneuploidy = "gain", True
-            elif mean_cn <= LOSS_RATIO * baseline and loss_frac >= WHOLE_CHROM_FRACTION:
+            elif mcn <= LOSS_RATIO * genome_median and loss_frac >= WHOLE_CHROM_FRACTION:
                 call, aneuploidy = "loss", True
             elif altered_frac > 0:
-                call = "focal"  # a sub-chromosomal amplification/deletion, not aneuploidy
+                call = "focal"  # sub-chromosomal amp/del, reported but not an aneuploidy
 
         row = {
             "seq_id": chrom,
-            "mean_cn": round(mean_cn, 3),
+            "mean_cn": round(mcn, 3),
+            "cn_vs_genome_median": round(mcn / genome_median, 3) if genome_median else 0,
             "length": lengths[chrom],
             "n_segments": a["n"],
             "altered_fraction": round(altered_frac, 3),
