@@ -18,6 +18,7 @@ include { KRAKEN2;
           MASH_SCREEN as MASH_RAW;
           MASH_SCREEN as MASH_UNMAPPED;
           BLASTN_REMOTE }                               from '../modules/local/contamination.nf'
+include { CNVKIT_REFERENCE; CNVKIT_CALL }               from '../modules/local/cnv.nf'
 include { EMIT_RESULTS }                                 from '../modules/local/report.nf'
 
 workflow STRAINQC {
@@ -35,7 +36,10 @@ workflow STRAINQC {
 
     if (params.variant_caller == 'gatk') {
         PREPARE_REFERENCE(ch_reference)
-        def refset = PREPARE_REFERENCE.out.refset
+        // .first() → a value channel so the single reference broadcasts to every sample's
+        // per-sample process (align/call/evidence/cnv). Without it a multi-sample run would
+        // consume the lone refset item once and process only the first sample.
+        def refset = PREPARE_REFERENCE.out.refset.first()
 
         BWA_MEM2_ALIGN(ch_reads, refset)
         GATK_MARKDUPLICATES(BWA_MEM2_ALIGN.out.bam)
@@ -48,6 +52,21 @@ workflow STRAINQC {
 
         def bam_vcf = bam.join(GATK_CALL.out.vcf)             // [meta, bam, bai, vcf]
         VARIANT_EVIDENCE(bam_vcf, refset)
+
+        // Copy-number / aneuploidy (CNVkit), cohort step — only when an ancestor is named.
+        // The parent BAM builds the reference; each evolved sample is called against it
+        // (mirrors Ottilie et al.'s parent-normalised coverage). Off by default → single-sample
+        // UI runs and -profile test are unchanged; the parent gets no cnv (NF placeholder).
+        def ch_cnv = Channel.empty()
+        if (params.parent_sample) {
+            def parent_bam  = bam.filter { meta, b, i -> meta.id == params.parent_sample }
+            def evolved_bam = bam.filter { meta, b, i -> meta.id != params.parent_sample }
+            CNVKIT_REFERENCE(parent_bam, refset)
+            // .first() → value channel: the single parent-derived reference broadcasts to
+            // every evolved sample.
+            CNVKIT_CALL(evolved_bam, CNVKIT_REFERENCE.out.reference.first(), refset)
+            ch_cnv = CNVKIT_CALL.out.cnv                       // [meta, cnv.json]
+        }
 
         // Contamination (matches old app): Kraken2 on UNMAPPED → contaminants;
         // MASH on RAW reads → mash_results (identifies dominant + contaminant strains);
@@ -68,12 +87,13 @@ workflow STRAINQC {
             .join(MASH_UNMAPPED.out.screen,          remainder: true)
             .join(VARIANT_EVIDENCE.out.evidence,     remainder: true)
             .join(SAMTOOLS_UNMAPPED.out.unmapped,    remainder: true)
-            .map { meta, vcf, cov, flag, krak, mashraw, mashunmap, evid, unmap ->
+            .join(ch_cnv,                            remainder: true)
+            .map { meta, vcf, cov, flag, krak, mashraw, mashunmap, evid, unmap, cnv ->
                 tuple(meta, vcf, ch_reference,
                       orNF(cov), orNF(flag), orNF(krak),
                       orNF(mashraw), orNF(mashunmap),
                       NF /*blast fallback: TODO wire BLASTN_REMOTE when no kraken DB*/,
-                      orNF(evid), orNF(unmap))
+                      orNF(evid), orNF(unmap), orNF(cnv))
             }
 
     } else {   // ── breseq path ───────────────────────────────────────
@@ -96,7 +116,8 @@ workflow STRAINQC {
                 tuple(meta, outdir, ch_reference,
                       orNF(cov), NF /*flagstat: breseq read_stats come from summary.html*/,
                       orNF(krak), orNF(mash),
-                      NF /*mash_unmapped*/, NF /*blast*/, NF /*evidence*/, NF /*unmapped*/)
+                      NF /*mash_unmapped*/, NF /*blast*/, NF /*evidence*/, NF /*unmapped*/,
+                      NF /*cnv: breseq path has no CNV step*/)
             }
     }
 

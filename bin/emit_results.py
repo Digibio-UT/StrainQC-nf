@@ -660,6 +660,22 @@ def build_results(args) -> Dict[str, Any]:
     # ── unmapped read files ──────────────────────────────────────────────────
     results["unmapped_files"] = [os.path.basename(f) for f in (args.unmapped or []) if _present(f)]
 
+    # ── copy-number / aneuploidy (CNVkit; gatk path, evolved-vs-parent only) ──
+    # Optional superset key: absent for the parent, the breseq path, and runs without a
+    # --parent_sample, so existing consumers are unaffected. See bin/summarize_cnv.py.
+    if _present(getattr(args, "cnv", None)):
+        try:
+            with open(args.cnv) as fh:
+                cnv = json.load(fh)
+            results["chromosome_copy_number"] = cnv.get("chromosome_copy_number", [])
+            results["aneuploidy"] = cnv.get("aneuploidy", [])
+            results["cnv_tool"] = cnv.get("cnv_tool", "cnvkit")
+            results["steps"]["cnv"] = "completed"
+        except (OSError, ValueError) as exc:
+            results["steps"]["cnv"] = f"failed: {exc}"
+    else:
+        results["steps"]["cnv"] = "skipped"
+
     # ── MASH containment (input reads + unmapped reads) ──────────────────────
     if _present(args.mash):
         results["mash_results"] = parse_mash_screen(args.mash)
@@ -710,6 +726,7 @@ def main():
     p.add_argument("--mash-unmapped")
     p.add_argument("--blast")
     p.add_argument("--unmapped", nargs="*", default=[])
+    p.add_argument("--cnv", help="CNVkit summary JSON (bin/summarize_cnv.py); optional")
     p.add_argument("--out", default="results.json")
     args = p.parse_args()
 

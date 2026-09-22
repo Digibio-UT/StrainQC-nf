@@ -23,7 +23,8 @@ process EMIT_RESULTS {
           path(mash_unmap,   stageAs: 'mash_unmapped.tab'),
           path(blast,        stageAs: 'blast_results.tsv'),
           path(evidence,     stageAs: 'evidence'),          // dir of per-variant JSON
-          path(unmapped)                                    // 0..n FASTQ (names → unmapped_files)
+          path(unmapped),                                   // 0..n FASTQ (names → unmapped_files)
+          path(cnv,          stageAs: 'cnv.json')           // CNVkit per-chrom CN (gatk + parent only)
 
     output:
     tuple val(meta), path('results.json'), emit: results
@@ -48,6 +49,7 @@ process EMIT_RESULTS {
         --blast blast_results.tsv \\
         --evidence-dir evidence \\
         ${unmapped_arg} \\
+        --cnv cnv.json \\
         --out results.json
     """
 
