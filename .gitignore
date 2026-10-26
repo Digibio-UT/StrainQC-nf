@@ -61,6 +61,9 @@ launcher_data/
 # Local validation dataset (Ottilie ALE, ~480 MB) — never commit
 ottilie_test_data/
 
+# Exception: small synthetic/real test fixtures (gbk, vcf, tsv) ARE tracked
+!tests/python/fixtures/**
+
 # ─── Test runs ───────────────────────────────────────────────────────
 .nf-test/
 .nf-test.log
