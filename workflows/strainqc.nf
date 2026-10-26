@@ -35,11 +35,10 @@ workflow STRAINQC {
     def orNF = { v -> v ?: NF }
 
     if (params.variant_caller == 'gatk') {
+        // ch_reference is a plain file value, so PREPARE_REFERENCE's output is already a value
+        // channel and broadcasts to every sample's process (verified by mutation test).
         PREPARE_REFERENCE(ch_reference)
-        // .first() → a value channel so the single reference broadcasts to every sample's
-        // per-sample process (align/call/evidence/cnv). Without it a multi-sample run would
-        // consume the lone refset item once and process only the first sample.
-        def refset = PREPARE_REFERENCE.out.refset.first()
+        def refset = PREPARE_REFERENCE.out.refset
 
         BWA_MEM2_ALIGN(ch_reads, refset)
         GATK_MARKDUPLICATES(BWA_MEM2_ALIGN.out.bam)
@@ -62,8 +61,10 @@ workflow STRAINQC {
             def parent_bam  = bam.filter { meta, b, i -> meta.id == params.parent_sample }
             def evolved_bam = bam.filter { meta, b, i -> meta.id != params.parent_sample }
             CNVKIT_REFERENCE(parent_bam, refset)
-            // .first() → value channel: the single parent-derived reference broadcasts to
-            // every evolved sample.
+            // REQUIRED .first(): parent_bam is a (filtered) queue channel, so the reference
+            // arrives as a one-item queue channel that would be consumed by the first
+            // CNVKIT_CALL only. .first() makes it a value channel → every evolved sample.
+            // Guarded by the 3-sample stub test in tests/main.nf.test.
             CNVKIT_CALL(evolved_bam, CNVKIT_REFERENCE.out.reference.first(), refset)
             ch_cnv = CNVKIT_CALL.out.cnv                       // [meta, cnv.json]
         }

@@ -51,7 +51,8 @@ def load_mutations(results_json):
     muts = []
     for m in data.get("mutations", []):
         try:
-            pos = int(str(m.get("position", "")).strip())
+            # breseq formats positions with thousands separators ("257,908"); GATK does not.
+            pos = int(str(m.get("position", "")).replace(",", "").strip())
         except ValueError:
             continue
         muts.append({

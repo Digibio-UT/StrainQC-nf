@@ -1,0 +1,4 @@
+sample,fastq_1,fastq_2
+sampleA,reads.fastq.gz,
+sampleB,reads.fastq.gz,
+sampleC,reads.fastq.gz,

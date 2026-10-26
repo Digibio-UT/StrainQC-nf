@@ -93,9 +93,16 @@ and for add: `start?`, `end?`, `strand?=1`, `seq_id?`.
   contaminants?:        [ {name, rank, percentage, reads} ],
   blast_results?:       [ {title, count, identity, evalue, queries} ],
   snp_blast_results?:   [ <BlastHit> ],   snp_query_file?
+  // CNV superset (GATK path, only when --parent_sample is set; absent otherwise):
+  cnv_tool?:               "cnvkit",
+  chromosome_copy_number?: [ {seq_id, mean_cn, cn_vs_genome_median, length, n_segments,
+                              altered_fraction, call:"gain"|"loss"|"focal"|"neutral", aneuploidy:bool} ],
+  aneuploidy?:             [ {seq_id, call:"gain"|"loss", mean_cn} ],
   // manta_vcf  ← REMOVED in 30ce748; do NOT emit
 }
 ```
+
+Enforced by `tests/python/test_contract.py`, which fails on any key not listed here.
 
 ---
 

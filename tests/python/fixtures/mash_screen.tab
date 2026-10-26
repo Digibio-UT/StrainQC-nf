@@ -1,0 +1,4 @@
+0.85	20/1000	3	1e-10	GCF_salmonella.fna.gz	Salmonella enterica
+0.99	900/1000	50	0	GCF_000005845.2.fna.gz	[1 seqs] Escherichia coli K-12
+0.95	5/1000	2	1e-5	GCF_lowhash.fna.gz	too few shared hashes
+0.70	500/1000	10	0	GCF_lowid.fna.gz	identity too low

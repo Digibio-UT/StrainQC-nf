@@ -1,0 +1,533 @@
+{
+  "job_id": "job_3c7e37a4-4951-4596-b1ef-a77913f3b7ff_0ac7582f",
+  "status": "completed",
+  "reference_file": "e_coli.gbk",
+  "variant_caller": "breseq",
+  "steps": {
+    "breseq": "completed",
+    "mash": "completed",
+    "kraken": "completed"
+  },
+  "read_stats": {
+    "total_reads": 962537,
+    "mapped_percentage": 78.8,
+    "unmapped_percentage": 21.2,
+    "unmapped_reads": 204057
+  },
+  "mutations": [
+    {
+      "type": "DEL",
+      "evidence": "MC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "MC",
+          "url": "evidence/MC_PLOT_230.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_239.html"
+        }
+      ],
+      "position": "257,908",
+      "mutation": "\u0394776\u00a0bp",
+      "freq": "100%",
+      "annotation": "",
+      "gene": "insB9\u2013[crl]",
+      "description": "insB9, insA9, [crl]",
+      "seq_id": "",
+      "details": [
+        "100%",
+        ""
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_2.html"
+        }
+      ],
+      "position": "409,876",
+      "mutation": "C\u2192T",
+      "freq": "100%",
+      "annotation": "P48P\u00a0(CCG\u2192CCA)",
+      "gene": "rdgC\u00a0\u2190",
+      "description": "nucleoid\u2011associated protein RdgC",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "P48P\u00a0(CCG\u2192CCA)"
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_3.html"
+        }
+      ],
+      "position": "1,169,836",
+      "mutation": "A\u2192G",
+      "freq": "100%",
+      "annotation": "L180P\u00a0(CTG\u2192CCG)",
+      "gene": "ldtC\u00a0\u2190",
+      "description": "L,D\u2011transpeptidase LdtC",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "L180P\u00a0(CTG\u2192CCG)"
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_4.html"
+        }
+      ],
+      "position": "1,189,980",
+      "mutation": "A\u2192G",
+      "freq": "100%",
+      "annotation": "T156T\u00a0(ACT\u2192ACC)",
+      "gene": "phoP\u00a0\u2190",
+      "description": "DNA\u2011binding transcriptional dual regulator PhoP",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "T156T\u00a0(ACT\u2192ACC)"
+      ]
+    },
+    {
+      "type": "DEL",
+      "evidence": "MC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "MC",
+          "url": "evidence/MC_PLOT_231.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_242.html"
+        }
+      ],
+      "position": "1,299,499",
+      "mutation": "\u03941,199\u00a0bp",
+      "freq": "100%",
+      "annotation": "",
+      "gene": "insH21",
+      "description": "insH21",
+      "seq_id": "",
+      "details": [
+        "100%",
+        ""
+      ]
+    },
+    {
+      "type": "INS",
+      "evidence": "JC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "JC",
+          "url": "evidence/JC_243.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_244.html"
+        }
+      ],
+      "position": "1,301,117",
+      "mutation": "IS2\u00a0(\u2013)\u00a0+5\u00a0bp",
+      "freq": "100%",
+      "annotation": "intergenic\u00a0(+570/\u201161)",
+      "gene": "insH21\u00a0\u2192\u00a0/\u00a0\u2192\u00a0oppA",
+      "description": "IS5 transposase and trans\u2011activator/oligopeptide ABC transporter periplasmic binding protein",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "intergenic\u00a0(+570/\u201161)"
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_7.html"
+        }
+      ],
+      "position": "1,337,394",
+      "mutation": "A\u2192G",
+      "freq": "100%",
+      "annotation": "S522G\u00a0(AGC\u2192GGC)",
+      "gene": "acnA\u00a0\u2192",
+      "description": "aconitate hydratase 1",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "S522G\u00a0(AGC\u2192GGC)"
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_8.html"
+        }
+      ],
+      "position": "1,399,465",
+      "mutation": "T\u2192A",
+      "freq": "100%",
+      "annotation": "Q21L\u00a0(CAG\u2192CTG)",
+      "gene": "fnr\u00a0\u2190",
+      "description": "DNA\u2011binding transcriptional dual regulator FNR",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "Q21L\u00a0(CAG\u2192CTG)"
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_9.html"
+        }
+      ],
+      "position": "1,652,331",
+      "mutation": "T\u2192C",
+      "freq": "100%",
+      "annotation": "intergenic\u00a0(+2346/+397)",
+      "gene": "ydfD\u00a0\u2192\u00a0/\u00a0\u2190\u00a0ynfP",
+      "description": "lysis protein/protein YnfP",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "intergenic\u00a0(+2346/+397)"
+      ]
+    },
+    {
+      "type": "DEL",
+      "evidence": "MC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "MC",
+          "url": "evidence/MC_PLOT_232.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_245.html"
+        }
+      ],
+      "position": "1,978,503",
+      "mutation": "\u0394776\u00a0bp",
+      "freq": "100%",
+      "annotation": "",
+      "gene": "insB5\u2013insA5",
+      "description": "insB5, insA5",
+      "seq_id": "",
+      "details": [
+        "100%",
+        ""
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_11.html"
+        }
+      ],
+      "position": "2,040,433",
+      "mutation": "C\u2192A",
+      "freq": "100%",
+      "annotation": "A319D\u00a0(GCC\u2192GAC)",
+      "gene": "msrP\u00a0\u2192",
+      "description": "protein\u2011L\u2011methionine sulfoxide reductase catalytic subunit MsrP",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "A319D\u00a0(GCC\u2192GAC)"
+      ]
+    },
+    {
+      "type": "DEL",
+      "evidence": "MC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "MC",
+          "url": "evidence/MC_PLOT_235.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_248.html"
+        }
+      ],
+      "position": "2,558,699",
+      "mutation": "\u03946,790\u00a0bp",
+      "freq": "100%",
+      "annotation": "",
+      "gene": "intZ\u2013[eutA]",
+      "description": "intZ, yffL, yffM, yffN, yffO, yffP, yffQ, yffR, yffS, [eutA]",
+      "seq_id": "",
+      "details": [
+        "100%",
+        ""
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_13.html"
+        }
+      ],
+      "position": "2,867,455",
+      "mutation": "G\u2192A",
+      "freq": "100%",
+      "annotation": "Q33*\u00a0(CAG\u2192TAG)",
+      "gene": "rpoS\u00a0\u2190",
+      "description": "RNA polymerase sigma factor RpoS",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "Q33*\u00a0(CAG\u2192TAG)"
+      ]
+    },
+    {
+      "type": "INS",
+      "evidence": "JC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "JC",
+          "url": "evidence/JC_247.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_249.html"
+        }
+      ],
+      "position": "2,987,179",
+      "mutation": "IS5\u00a0(+)\u00a0+4\u00a0bp",
+      "freq": "100%",
+      "annotation": "intergenic\u00a0(+103/\u2011354)",
+      "gene": "yqeG\u00a0\u2192\u00a0/\u00a0\u2192\u00a0yqeH",
+      "description": "putative transporter YqeG/putative LuxR family transcriptional regulator YqeH",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "intergenic\u00a0(+103/\u2011354)"
+      ]
+    },
+    {
+      "type": "INS",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_15.html"
+        }
+      ],
+      "position": "3,560,455",
+      "mutation": "+G",
+      "freq": "100%",
+      "annotation": "intergenic\u00a0(+589/+167)",
+      "gene": "rtcR\u00a0\u2192\u00a0/\u00a0\u2190\u00a0glpG",
+      "description": "DNA\u2011binding transcriptional activator RtcR/rhomboid protease GlpG",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "intergenic\u00a0(+589/+167)"
+      ]
+    },
+    {
+      "type": "SNP",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_16.html"
+        }
+      ],
+      "position": "4,223,638",
+      "mutation": "T\u2192C",
+      "freq": "100%",
+      "annotation": "intergenic\u00a0(\u201110/\u2011190)",
+      "gene": "iclR\u00a0\u2190\u00a0/\u00a0\u2192\u00a0metH",
+      "description": "DNA\u2011binding transcriptional repressor IclR/cobalamin\u2011dependent methionine synthase",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "intergenic\u00a0(\u201110/\u2011190)"
+      ]
+    },
+    {
+      "type": "INS",
+      "evidence": "JC\u00a0JC",
+      "evidence_links": [
+        {
+          "text": "JC",
+          "url": "evidence/JC_250.html"
+        },
+        {
+          "text": "JC",
+          "url": "evidence/JC_251.html"
+        }
+      ],
+      "position": "4,248,592",
+      "mutation": "IS2\u00a0(+)\u00a0+5\u00a0bp",
+      "freq": "100%",
+      "annotation": "coding\u00a0(622\u2011626/1341\u00a0nt)",
+      "gene": "lamB\u00a0\u2192",
+      "description": "maltose outer membrane channel/phage lambda receptor protein",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "coding\u00a0(622\u2011626/1341\u00a0nt)"
+      ]
+    },
+    {
+      "type": "INS",
+      "evidence": "RA",
+      "evidence_links": [
+        {
+          "text": "RA",
+          "url": "evidence/RA_18.html"
+        }
+      ],
+      "position": "4,296,381",
+      "mutation": "+GC",
+      "freq": "100%",
+      "annotation": "intergenic\u00a0(+587/+55)",
+      "gene": "gltP\u00a0\u2192\u00a0/\u00a0\u2190\u00a0yjcO",
+      "description": "glutamate/aspartate : H(+) symporter GltP/Sel1 repeat\u2011containing protein YjcO",
+      "seq_id": "",
+      "details": [
+        "100%",
+        "intergenic\u00a0(+587/+55)"
+      ]
+    }
+  ],
+  "coverage_file": "coverage.tsv",
+  "hc_snps_file": "high_confidence_snps.csv",
+  "unmapped_files": [],
+  "mash_results": [
+    {
+      "identity": 1.0,
+      "shared_hashes": "1000/1000",
+      "median_multiplicity": 22.0,
+      "p_value": 0.0,
+      "query_id": "GCF_000350185.1_ASM35018v1_genomic.fna.gz",
+      "comment": "NC_020518.1 Escherichia coli str. K-12 substr. MDS42 DNA, complete genome"
+    },
+    {
+      "identity": 0.99899,
+      "shared_hashes": "979/1000",
+      "median_multiplicity": 22.0,
+      "p_value": 0.0,
+      "query_id": "GCF_000840245.1_ViralProj14204_genomic.fna.gz",
+      "comment": "NC_001416.1 Enterobacteria phage lambda, complete genome"
+    },
+    {
+      "identity": 0.909049,
+      "shared_hashes": "135/1000",
+      "median_multiplicity": 21.0,
+      "p_value": 0.0,
+      "query_id": "GCF_000258865.1_ASM25886v1_genomic.fna.gz",
+      "comment": "[42 seqs] NZ_AICK01000001.1 Escherichia coli J53 1.ECJ53.1_1, whole genome shotgun sequence [...]"
+    },
+    {
+      "identity": 0.908403,
+      "shared_hashes": "133/1000",
+      "median_multiplicity": 23.0,
+      "p_value": 0.0,
+      "query_id": "GCF_000913735.1_ViralProj227000_genomic.fna.gz",
+      "comment": "NC_022749.1 Shigella phage SfIV, complete genome"
+    },
+    {
+      "identity": 0.899042,
+      "shared_hashes": "107/1000",
+      "median_multiplicity": 20.0,
+      "p_value": 0.0,
+      "query_id": "GCF_001042255.1_ViralProj287996_genomic.fna.gz",
+      "comment": "NC_027339.1 Enterobacteria phage SfI, complete genome"
+    },
+    {
+      "identity": 0.874615,
+      "shared_hashes": "60/1000",
+      "median_multiplicity": 22.0,
+      "p_value": 4.4473e-237,
+      "query_id": "GCF_000903215.1_ViralProj181074_genomic.fna.gz",
+      "comment": "NC_019445.1 Escherichia phage TL-2011b, complete genome"
+    },
+    {
+      "identity": 0.867872,
+      "shared_hashes": "51/1000",
+      "median_multiplicity": 25.0,
+      "p_value": 4.42261e-198,
+      "query_id": "GCF_000903575.1_ViralProj183142_genomic.fna.gz",
+      "comment": "NC_019723.1 Enterobacteria phage HK630, complete genome"
+    },
+    {
+      "identity": 0.862715,
+      "shared_hashes": "45/1000",
+      "median_multiplicity": 17.0,
+      "p_value": 1.77804e-172,
+      "query_id": "GCF_000836925.1_ViralProj14039_genomic.fna.gz",
+      "comment": "NC_001954.1 Enterobacteria phage If1, complete genome"
+    },
+    {
+      "identity": 0.861792,
+      "shared_hashes": "44/1000",
+      "median_multiplicity": 19.0,
+      "p_value": 3.04415e-168,
+      "query_id": "GCF_000882275.1_ViralProj32231_genomic.fna.gz",
+      "comment": "NC_011356.1 Enterobacteria phage YYZ-2008, complete prophage genome"
+    },
+    {
+      "identity": 0.848822,
+      "shared_hashes": "32/1000",
+      "median_multiplicity": 22.0,
+      "p_value": 2.60829e-118,
+      "query_id": "GCF_000845865.1_ViralProj14498_genomic.fna.gz",
+      "comment": "NC_005344.1 Enterobacteria phage Sf6, complete genome"
+    }
+  ],
+  "contaminants": [
+    {
+      "name": "unclassified",
+      "tax_id": "0",
+      "rank": "U",
+      "percentage": 22.09,
+      "reads": 212624
+    },
+    {
+      "name": "Escherichia",
+      "tax_id": "561",
+      "rank": "G",
+      "percentage": 2.9,
+      "reads": 27891
+    },
+    {
+      "name": "Escherichia coli",
+      "tax_id": "562",
+      "rank": "S",
+      "percentage": 1.19,
+      "reads": 11457
+    }
+  ]
+}

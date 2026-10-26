@@ -60,3 +60,10 @@ launcher_data/
 
 # Local validation dataset (Ottilie ALE, ~480 MB) — never commit
 ottilie_test_data/
+
+# ─── Test runs ───────────────────────────────────────────────────────
+.nf-test/
+.nf-test.log
+.coverage
+htmlcov/
+.pytest_cache/

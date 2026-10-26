@@ -1,0 +1,156 @@
+/*
+ * Pipeline-level tests (nf-test). Two of the three levels in the DTU yAMP testing overview:
+ *
+ *   -preview : dry run. Builds the DAG and runs start-up logic, executes no task (seconds).
+ *              Covers parameter switches and the fail-fast input validation in main.nf.
+ *   -stub    : runs the full wiring with each process's stub block instead of the tool, so
+ *              it checks channel plumbing, task counts and output layout without any tools.
+ *
+ * Full runs with real tools are the third level (Ottilie benchmark, tests/ottilie_benchmark).
+ * Run:  nf-test test tests/main.nf.test
+ */
+nextflow_pipeline {
+
+    name "StrainQC-nf pipeline"
+    script "main.nf"
+    profile "test"
+
+    // ── -preview: start-up logic and parameter switches ─────────────────────────
+
+    test("preview: default GATK route builds") {
+        options "-preview"
+        when { params { outdir = "$outputDir" } }
+        then { assert workflow.success }
+    }
+
+    test("preview: breseq route builds") {
+        options "-preview"
+        when { params { outdir = "$outputDir"; variant_caller = "breseq" } }
+        then { assert workflow.success }
+    }
+
+    test("preview: unknown variant caller is rejected") {
+        options "-preview"
+        when { params { outdir = "$outputDir"; variant_caller = "freebayes" } }
+        then {
+            assert workflow.failed
+            assert (workflow.stdout + workflow.stderr).any { it.contains("must be 'gatk' or 'breseq'") }
+        }
+    }
+
+    test("preview: --parent_sample not in the samplesheet is rejected") {
+        options "-preview"
+        when {
+            params {
+                outdir        = "$outputDir"
+                input         = "${projectDir}/assets/test/samplesheet_two.csv"
+                parent_sample = "sampleZ"
+            }
+        }
+        then {
+            assert workflow.failed
+            assert (workflow.stdout + workflow.stderr).any { it.contains("'sampleZ' is not a sample") }
+        }
+    }
+
+    test("preview: duplicate sample ids are rejected") {
+        options "-preview"
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "${projectDir}/assets/test/samplesheet_dupes.csv"
+            }
+        }
+        then {
+            assert workflow.failed
+            assert (workflow.stdout + workflow.stderr).any { it.contains("Duplicate sample ids") }
+        }
+    }
+
+    test("preview: --parent_sample on the breseq route warns and continues") {
+        options "-preview"
+        when {
+            params {
+                outdir         = "$outputDir"
+                input          = "${projectDir}/assets/test/samplesheet_two.csv"
+                variant_caller = "breseq"
+                parent_sample  = "sampleA"
+            }
+        }
+        then {
+            assert workflow.success
+            // Under nf-test, log.warn lands in the run's nextflow.log (only errors reach the console).
+            assert path("$metaDir/nextflow.log").text.contains("CNV calling runs only on the GATK path")
+        }
+    }
+
+    // ── -stub: wiring, task counts, output layout ───────────────────────────────
+
+    test("stub: GATK, two samples, every sample reaches EMIT_RESULTS") {
+        // Multi-sample wiring: one reference, every sample through every per-sample step.
+        options "-stub"
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "${projectDir}/assets/test/samplesheet_two.csv"
+            }
+        }
+        then {
+            def ran = { proc -> workflow.trace.succeeded().count { it.name.startsWith("STRAINQC:${proc} ") } }
+            assert workflow.success
+            assert ran("PREPARE_REFERENCE") == 1
+            assert ran("BWA_MEM2_ALIGN")    == 2
+            assert ran("GATK_CALL")         == 2
+            assert ran("VARIANT_EVIDENCE")  == 2
+            assert ran("EMIT_RESULTS")      == 2
+            assert ran("CNVKIT_REFERENCE")  == 0       // CNV is off without --parent_sample
+            assert ran("CNVKIT_CALL")       == 0
+            assert path("$outputDir/sampleA/results.json").json.job_id == "sampleA"
+            assert path("$outputDir/sampleB/results.json").json.job_id == "sampleB"
+        }
+    }
+
+    test("stub: GATK with --parent_sample runs CNVkit for every evolved sample") {
+        // Three samples so the single parent-derived reference must reach TWO evolved
+        // samples: CNVKIT_REFERENCE emits a one-item queue channel, which without .first()
+        // would be consumed by the first CNVKIT_CALL only.
+        options "-stub"
+        when {
+            params {
+                outdir        = "$outputDir"
+                input         = "${projectDir}/assets/test/samplesheet_three.csv"
+                parent_sample = "sampleA"
+            }
+        }
+        then {
+            def tasks = { proc -> workflow.trace.succeeded().findAll { it.name.startsWith("STRAINQC:${proc} ") }*.name.sort() }
+            assert workflow.success
+            assert tasks("CNVKIT_REFERENCE") == ["STRAINQC:CNVKIT_REFERENCE (sampleA)"]
+            assert tasks("CNVKIT_CALL")      == ["STRAINQC:CNVKIT_CALL (sampleB)", "STRAINQC:CNVKIT_CALL (sampleC)"]
+            assert tasks("EMIT_RESULTS").size() == 3
+            assert path("$outputDir/sampleB/cnv/cnv.json").exists()
+            assert path("$outputDir/sampleC/cnv/cnv.json").exists()
+            assert !path("$outputDir/sampleA/cnv").exists()    // the parent is the reference
+        }
+    }
+
+    test("stub: breseq route, two samples") {
+        options "-stub"
+        when {
+            params {
+                outdir         = "$outputDir"
+                input          = "${projectDir}/assets/test/samplesheet_two.csv"
+                variant_caller = "breseq"
+            }
+        }
+        then {
+            def ran = { proc -> workflow.trace.succeeded().count { it.name.startsWith("STRAINQC:${proc} ") } }
+            assert workflow.success
+            assert ran("BRESEQ")          == 2
+            assert ran("BRESEQ_COVERAGE") == 2
+            assert ran("EMIT_RESULTS")    == 2
+            assert ran("GATK_CALL")       == 0
+            assert path("$outputDir/sampleA/results.json").json.variant_caller == "breseq"
+        }
+    }
+}

@@ -417,11 +417,22 @@ def parse_vcf(vcf_file_path: str, reference_gbk_path: str = None) -> List[Dict[s
     gene_lookup = _parse_gbk_genes(reference_gbk_path) if reference_gbk_path else []
 
     def find_gene(seq_id, pos):
+        # A GenBank locus usually has a `gene` feature (name, no /product) AND a `CDS` feature
+        # (with /product) over the same span. Merge across ALL overlapping features: name from
+        # the first that has one, product from the first that has one. Returning the first
+        # match alone left `annotation` empty for every GATK variant.
+        sid = _strip_version(seq_id)
+        matched, name, product = False, "", ""
         for g in gene_lookup:
-            if g["start"] <= pos <= g["end"]:
-                if _strip_version(g["seq_id"]) == _strip_version(seq_id) or not gene_lookup:
-                    return (g["name"] or g["locus_tag"] or "unknown"), g["product"]
-        return "", ""
+            if g["start"] <= pos <= g["end"] and _strip_version(g["seq_id"]) == sid:
+                matched = True
+                name = name or g["name"] or g["locus_tag"]
+                product = product or g["product"]
+                if name and product:
+                    break
+        if not matched:
+            return "", ""
+        return (name or "unknown"), product
 
     try:
         with open(vcf_file_path, "r") as f:
