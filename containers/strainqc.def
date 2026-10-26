@@ -28,7 +28,8 @@ From: mambaorg/micromamba:1.5.10
         breseq \
         kraken2 \
         mash \
-        blast
+        blast \
+        cnvkit
     micromamba clean --all --yes
 
 %environment
@@ -38,6 +39,6 @@ From: mambaorg/micromamba:1.5.10
 
 %test
     set -e
-    for tool in samtools bwa-mem2 gatk breseq kraken2 mash blastn python3 ps; do
+    for tool in samtools bwa-mem2 gatk breseq kraken2 mash blastn cnvkit.py python3 ps; do
         command -v "$tool" >/dev/null && echo "OK: $tool" || { echo "MISSING: $tool"; exit 1; }
     done

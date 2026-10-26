@@ -16,6 +16,7 @@ RUN micromamba install -y -n base -c conda-forge -c bioconda \
         kraken2 \
         mash \
         blast \
+        cnvkit \
     && micromamba clean --all --yes
 
 ENV PATH="/opt/conda/bin:$PATH" \
@@ -23,6 +24,6 @@ ENV PATH="/opt/conda/bin:$PATH" \
     LANG=C
 
 # Fail the build early if any tool is missing from PATH.
-RUN for t in samtools bwa-mem2 gatk breseq kraken2 mash blastn python3 ps; do \
+RUN for t in samtools bwa-mem2 gatk breseq kraken2 mash blastn cnvkit.py python3 ps; do \
         command -v "$t" >/dev/null || { echo "MISSING: $t"; exit 1; }; \
     done

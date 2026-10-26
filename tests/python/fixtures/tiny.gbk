@@ -1,0 +1,28 @@
+LOCUS       I                120 bp    DNA     linear   CON 01-JAN-2026
+DEFINITION  tiny test chromosome I.
+FEATURES             Location/Qualifiers
+     source          1..120
+                     /organism="Testus testus"
+     gene            10..40
+                     /gene="ABC1"
+                     /locus_tag="YAL001C"
+     CDS             10..40
+                     /gene="ABC1"
+                     /locus_tag="YAL001C"
+                     /product="Abc1p test protein"
+     gene            complement(60..90)
+                     /locus_tag="YAL002W"
+     CDS             complement(60..90)
+                     /locus_tag="YAL002W"
+                     /product="hypothetical protein"
+ORIGIN
+        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt
+       61 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt
+//
+LOCUS       II                60 bp    DNA     linear   CON 01-JAN-2026
+FEATURES             Location/Qualifiers
+     gene            5..30
+                     /gene="XYZ1"
+ORIGIN
+        1 gattacagat gattacagat gattacagat gattacagat gattacagat gattacagat
+//

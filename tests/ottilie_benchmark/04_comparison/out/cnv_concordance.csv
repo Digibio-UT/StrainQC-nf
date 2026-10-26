@@ -1,0 +1,17 @@
+sample,seq_id,mean_cn,call,aneuploidy,in_sup5_truth
+CBR110-15-R3a,I,1.285,gain,True,True
+CBR110-15-R3a,II,0.989,focal,False,False
+CBR110-15-R3a,III,1.126,focal,False,False
+CBR110-15-R3a,IV,0.998,focal,False,False
+CBR110-15-R3a,V,0.995,focal,False,False
+CBR110-15-R3a,VI,1.141,neutral,False,False
+CBR110-15-R3a,VII,1.022,focal,False,False
+CBR110-15-R3a,VIII,0.974,neutral,False,False
+CBR110-15-R3a,IX,1.029,focal,False,False
+CBR110-15-R3a,X,1.007,focal,False,False
+CBR110-15-R3a,XI,0.984,neutral,False,False
+CBR110-15-R3a,XII,0.978,neutral,False,False
+CBR110-15-R3a,XIII,1.012,neutral,False,False
+CBR110-15-R3a,XIV,0.982,neutral,False,False
+CBR110-15-R3a,XV,1.019,focal,False,False
+CBR110-15-R3a,XVI,1.001,focal,False,False

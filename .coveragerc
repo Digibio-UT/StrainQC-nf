@@ -1,0 +1,4 @@
+[run]
+source = bin
+# Dev helper that generates the synthetic test fixture; not part of any pipeline step.
+omit = bin/make_testdata.py

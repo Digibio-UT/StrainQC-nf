@@ -1,0 +1,176 @@
+sample,chrom,position,type,gene,aa_change,ref,alt,status,called_as,called_pos
+Doxorubicin-16-R2b,II,96034,INDEL,intergenic,n.96035delA,GA,G,recovered,Δ1 bp,96034
+Doxorubicin-16-R2b,III,191351,INDEL,ELO2,p.Ala256fs/c.765delA,CA,C,recovered,Δ1 bp,191351
+Doxorubicin-16-R2b,III,236804,INDEL,intergenic,n.236805delT,CT,C,recovered,Δ1 bp,236804
+Doxorubicin-16-R2b,IV,1494413,INDEL,intergenic,n.1494414delA,CA,C,recovered,Δ1 bp,1494413
+Doxorubicin-16-R2b,IX,104223,INDEL,ASG1,p.Thr484fs/c.1450delA,TA,T,recovered,Δ1 bp,104223
+Doxorubicin-16-R2b,Mito,53278,INDEL,intergenic,n.53279_53292delTATTTAATATTTAA,TTATTTAATATTTAA,T,missed,,
+Doxorubicin-16-R2b,V,148091,INDEL,intergenic,n.148092delA,GA,G,recovered,Δ1 bp,148091
+Doxorubicin-16-R2b,VII,124375,INDEL,intergenic,n.124376delA,GA,G,recovered,Δ1 bp,124375
+Doxorubicin-16-R2b,VII,470822,INDEL,PDR1,p.Val493fs/c.1476delA,CT,C,recovered,Δ1 bp,470822
+Doxorubicin-16-R2b,VII,1024993,INDEL,intergenic,n.1024994delT,AT,A,recovered,Δ1 bp,1024993
+Doxorubicin-16-R2b,XI,237424,INDEL,intergenic,n.237424_237425insA,G,GA,recovered,+A,237424
+Doxorubicin-16-R2b,XI,638422,INDEL,intergenic,n.638423delT,AT,A,recovered,Δ1 bp,638422
+Doxorubicin-16-R2b,XII,223309,INDEL,intergenic,n.223310delT,CT,C,recovered,Δ1 bp,223309
+Doxorubicin-16-R2b,XII,582094,INDEL,YLR222C-A,p.Tyr48fs/c.142delT,TA,T,recovered,Δ1 bp,582094
+Doxorubicin-16-R2b,XII,723168,INDEL,YLR296W,p.Ile69fs/c.205delA,CA,C,recovered,Δ1 bp,723168
+Doxorubicin-16-R2b,XIII,707137,INDEL,ESC1,p.Glu6fs/c.15delA,CA,C,recovered,Δ1 bp,707137
+Doxorubicin-16-R2b,XIV,475560,SNP,PMS1,p.Lys724*/c.2170A>T,A,T,recovered,A→T,475560
+Doxorubicin-16-R2b,XIV,781921,SNP,PAU6,p.Val2Ile/c.4G>A,G,A,recovered,G→A,781921
+Doxorubicin-16-R2b,XV,1085,INDEL,YOL166C,p.Ile84fs/c.252_253delAT,CAT,C,recovered,Δ2 bp,1085
+Doxorubicin-16-R2b,XV,324488,INDEL,intergenic,n.324489delA,TA,T,recovered,Δ1 bp,324488
+Doxorubicin-16-R2b,XV,462157,INDEL,intergenic,n.462158delT,AT,A,recovered,Δ1 bp,462157
+Doxorubicin-16-R2b,XV,661903,INDEL,intergenic,n.661904delA,CA,C,recovered,Δ1 bp,661903
+Doxorubicin-16-R2b,XVI,491460,INDEL,intergenic,n.491461delA,GA,G,recovered,Δ1 bp,491460
+Doxorubicin-16-R2b,I,5068,DEL,,,,,extra_call_not_in_truth,Δ1 bp,5068
+Doxorubicin-16-R2b,I,225080,DEL,,,,,extra_call_not_in_truth,Δ1 bp,225080
+Doxorubicin-16-R2b,II,30210,SNP,YBL100W-B,,,,extra_call_not_in_truth,T→C,30210
+Doxorubicin-16-R2b,II,207021,DEL,,,,,extra_call_not_in_truth,Δ1 bp,207021
+Doxorubicin-16-R2b,II,281139,DEL,,,,,extra_call_not_in_truth,Δ1 bp,281139
+Doxorubicin-16-R2b,II,751216,DEL,,,,,extra_call_not_in_truth,Δ1 bp,751216
+Doxorubicin-16-R2b,III,213,DEL,,,,,extra_call_not_in_truth,Δ6 bp,213
+Doxorubicin-16-R2b,III,127804,DEL,,,,,extra_call_not_in_truth,Δ1 bp,127804
+Doxorubicin-16-R2b,III,295386,SNP,,,,,extra_call_not_in_truth,T→A,295386
+Doxorubicin-16-R2b,III,316579,DEL,,,,,extra_call_not_in_truth,Δ4 bp,316579
+Doxorubicin-16-R2b,IV,81,DEL,,,,,extra_call_not_in_truth,Δ1 bp,81
+Doxorubicin-16-R2b,IV,85,INS,,,,,extra_call_not_in_truth,+C,85
+Doxorubicin-16-R2b,IV,87,SNP,,,,,extra_call_not_in_truth,A→C,87
+Doxorubicin-16-R2b,IV,212440,DEL,,,,,extra_call_not_in_truth,Δ1 bp,212440
+Doxorubicin-16-R2b,IV,273629,DEL,,,,,extra_call_not_in_truth,Δ3 bp,273629
+Doxorubicin-16-R2b,IV,621879,DEL,,,,,extra_call_not_in_truth,Δ2 bp,621879
+Doxorubicin-16-R2b,IV,727547,SNP,YCF1,,,,extra_call_not_in_truth,G→T,727547
+Doxorubicin-16-R2b,IV,884572,DEL,,,,,extra_call_not_in_truth,Δ2 bp,884572
+Doxorubicin-16-R2b,IV,1162589,SNP,,,,,extra_call_not_in_truth,G→T,1162589
+Doxorubicin-16-R2b,IV,1525313,SNP,,,,,extra_call_not_in_truth,T→G,1525313
+Doxorubicin-16-R2b,IV,1525335,SNP,,,,,extra_call_not_in_truth,C→G,1525335
+Doxorubicin-16-R2b,IV,1525340,SNP,,,,,extra_call_not_in_truth,C→A,1525340
+Doxorubicin-16-R2b,IV,1525345,SNP,,,,,extra_call_not_in_truth,C→G,1525345
+Doxorubicin-16-R2b,IV,1525351,SNP,,,,,extra_call_not_in_truth,C→G,1525351
+Doxorubicin-16-R2b,IV,1525357,SNP,,,,,extra_call_not_in_truth,C→G,1525357
+Doxorubicin-16-R2b,IV,1525363,SNP,,,,,extra_call_not_in_truth,C→G,1525363
+Doxorubicin-16-R2b,IV,1525365,DEL,,,,,extra_call_not_in_truth,Δ13 bp,1525365
+Doxorubicin-16-R2b,IV,1525384,DEL,,,,,extra_call_not_in_truth,Δ9 bp,1525384
+Doxorubicin-16-R2b,V,33547,INS,,,,,extra_call_not_in_truth,+53 bp,33547
+Doxorubicin-16-R2b,V,33551,SNP,,,,,extra_call_not_in_truth,A→C,33551
+Doxorubicin-16-R2b,V,33553,SNP,,,,,extra_call_not_in_truth,A→C,33553
+Doxorubicin-16-R2b,V,39894,DEL,,,,,extra_call_not_in_truth,Δ1 bp,39894
+Doxorubicin-16-R2b,V,251560,INS,,,,,extra_call_not_in_truth,+GA,251560
+Doxorubicin-16-R2b,V,522970,DEL,,,,,extra_call_not_in_truth,Δ1 bp,522970
+Doxorubicin-16-R2b,VII,140313,DEL,,,,,extra_call_not_in_truth,Δ3 bp,140313
+Doxorubicin-16-R2b,VII,167250,DEL,,,,,extra_call_not_in_truth,Δ1 bp,167250
+Doxorubicin-16-R2b,VII,808386,INS,,,,,extra_call_not_in_truth,+TA,808386
+Doxorubicin-16-R2b,VII,949251,INS,,,,,extra_call_not_in_truth,+TA,949251
+Doxorubicin-16-R2b,VIII,93,DEL,,,,,extra_call_not_in_truth,Δ1 bp,93
+Doxorubicin-16-R2b,VIII,1997,SNP,YHL050C,,,,extra_call_not_in_truth,T→C,1997
+Doxorubicin-16-R2b,VIII,237735,DEL,,,,,extra_call_not_in_truth,Δ1 bp,237735
+Doxorubicin-16-R2b,VIII,298814,DEL,,,,,extra_call_not_in_truth,Δ1 bp,298814
+Doxorubicin-16-R2b,IX,69689,DEL,,,,,extra_call_not_in_truth,Δ1 bp,69689
+Doxorubicin-16-R2b,IX,138429,DEL,,,,,extra_call_not_in_truth,Δ1 bp,138429
+Doxorubicin-16-R2b,IX,364878,DEL,,,,,extra_call_not_in_truth,Δ1 bp,364878
+Doxorubicin-16-R2b,IX,370195,DEL,,,,,extra_call_not_in_truth,Δ1 bp,370195
+Doxorubicin-16-R2b,X,580248,DEL,YJR079W,,,,extra_call_not_in_truth,Δ2 bp,580248
+Doxorubicin-16-R2b,X,715129,SNP,DAN4,,,,extra_call_not_in_truth,C→A,715129
+Doxorubicin-16-R2b,X,715132,SNP,DAN4,,,,extra_call_not_in_truth,T→A,715132
+Doxorubicin-16-R2b,X,715141,SNP,DAN4,,,,extra_call_not_in_truth,A→G,715141
+Doxorubicin-16-R2b,X,745696,DEL,,,,,extra_call_not_in_truth,Δ13 bp,745696
+Doxorubicin-16-R2b,XI,26591,INS,,,,,extra_call_not_in_truth,+AT,26591
+Doxorubicin-16-R2b,XI,286448,DEL,,,,,extra_call_not_in_truth,Δ1 bp,286448
+Doxorubicin-16-R2b,XI,463261,DEL,,,,,extra_call_not_in_truth,Δ1 bp,463261
+Doxorubicin-16-R2b,XI,489841,DEL,,,,,extra_call_not_in_truth,Δ1 bp,489841
+Doxorubicin-16-R2b,XI,632832,DEL,,,,,extra_call_not_in_truth,Δ1 bp,632832
+Doxorubicin-16-R2b,XI,666768,SNP,,,,,extra_call_not_in_truth,T→G,666768
+Doxorubicin-16-R2b,XII,36595,DEL,,,,,extra_call_not_in_truth,Δ1 bp,36595
+Doxorubicin-16-R2b,XII,130903,DEL,,,,,extra_call_not_in_truth,Δ1 bp,130903
+Doxorubicin-16-R2b,XII,251194,DEL,,,,,extra_call_not_in_truth,Δ1 bp,251194
+Doxorubicin-16-R2b,XII,459803,INS,,,,,extra_call_not_in_truth,+27 bp,459803
+Doxorubicin-16-R2b,XII,513997,INS,,,,,extra_call_not_in_truth,+A,513997
+Doxorubicin-16-R2b,XII,612158,DEL,,,,,extra_call_not_in_truth,Δ1 bp,612158
+Doxorubicin-16-R2b,XII,944099,SNP,YLR410W-B,,,,extra_call_not_in_truth,A→C,944099
+Doxorubicin-16-R2b,XII,1026686,DEL,,,,,extra_call_not_in_truth,Δ1 bp,1026686
+Doxorubicin-16-R2b,XII,1031402,INS,FPR4,,,,extra_call_not_in_truth,+AGA,1031402
+Doxorubicin-16-R2b,XII,1065064,DEL,,,,,extra_call_not_in_truth,Δ42 bp,1065064
+Doxorubicin-16-R2b,XIII,192012,DEL,,,,,extra_call_not_in_truth,Δ1 bp,192012
+Doxorubicin-16-R2b,XIII,192014,SNP,,,,,extra_call_not_in_truth,A→T,192014
+Doxorubicin-16-R2b,XIII,209069,DEL,,,,,extra_call_not_in_truth,Δ1 bp,209069
+Doxorubicin-16-R2b,XIII,388684,INS,,,,,extra_call_not_in_truth,+TA,388684
+Doxorubicin-16-R2b,XIII,667202,DEL,,,,,extra_call_not_in_truth,Δ1 bp,667202
+Doxorubicin-16-R2b,XIII,874559,DEL,,,,,extra_call_not_in_truth,Δ1 bp,874559
+Doxorubicin-16-R2b,XIV,6652,INS,,,,,extra_call_not_in_truth,+CA,6652
+Doxorubicin-16-R2b,XIV,198236,DEL,,,,,extra_call_not_in_truth,Δ1 bp,198236
+Doxorubicin-16-R2b,XIV,300929,INS,,,,,extra_call_not_in_truth,+11 bp,300929
+Doxorubicin-16-R2b,XIV,300948,SNP,,,,,extra_call_not_in_truth,T→A,300948
+Doxorubicin-16-R2b,XIV,321979,DEL,,,,,extra_call_not_in_truth,Δ1 bp,321979
+Doxorubicin-16-R2b,XIV,510328,DEL,,,,,extra_call_not_in_truth,Δ1 bp,510328
+Doxorubicin-16-R2b,XIV,722274,DEL,NOG2,,,,extra_call_not_in_truth,Δ1 bp,722274
+Doxorubicin-16-R2b,XIV,784247,SNP,,,,,extra_call_not_in_truth,T→G,784247
+Doxorubicin-16-R2b,XV,94815,DEL,,,,,extra_call_not_in_truth,Δ1 bp,94815
+Doxorubicin-16-R2b,XV,444498,DEL,,,,,extra_call_not_in_truth,Δ2 bp,444498
+Doxorubicin-16-R2b,XV,663701,DEL,,,,,extra_call_not_in_truth,Δ1 bp,663701
+Doxorubicin-16-R2b,XV,769810,DEL,WTM2,,,,extra_call_not_in_truth,Δ1 bp,769810
+Doxorubicin-16-R2b,XV,769891,DEL,,,,,extra_call_not_in_truth,Δ1 bp,769891
+Doxorubicin-16-R2b,XV,869477,SNP,UAF30,,,,extra_call_not_in_truth,A→C,869477
+Doxorubicin-16-R2b,XV,909076,DEL,,,,,extra_call_not_in_truth,Δ1 bp,909076
+Doxorubicin-16-R2b,XV,1037517,DEL,NUD1,,,,extra_call_not_in_truth,Δ3 bp,1037517
+Doxorubicin-16-R2b,XVI,46594,INS,,,,,extra_call_not_in_truth,+T,46594
+Doxorubicin-16-R2b,XVI,171936,SNP,CSM4,,,,extra_call_not_in_truth,G→C,171936
+Doxorubicin-16-R2b,XVI,192966,DEL,,,,,extra_call_not_in_truth,Δ1 bp,192966
+Doxorubicin-16-R2b,XVI,503385,INS,,,,,extra_call_not_in_truth,+13 bp,503385
+Doxorubicin-16-R2b,XVI,857189,DEL,,,,,extra_call_not_in_truth,Δ1 bp,857189
+Doxorubicin-16-R2b,Mito,17358,INS,COX1,,,,extra_call_not_in_truth,+A,17358
+Doxorubicin-16-R2b,Mito,67400,INS,,,,,extra_call_not_in_truth,+C,67400
+Carmaphycin-R9-2,IV,126219,SNP,YDL186W,p.Val202Leu/c.604G>C,G,C,recovered,G→C,126219
+Carmaphycin-R9-2,IV,310485,SNP,intergenic,n.310485G>T,G,T,recovered,G→T,310485
+Carmaphycin-R9-2,V,469834,SNP,UBP3,p.Ala864Glu/c.2591C>A,G,T,recovered,G→T,469834
+Carmaphycin-R9-2,V,562119,SNP,YER186C,p.Leu169Phe/c.507G>T,C,A,recovered,C→A,562119
+Carmaphycin-R9-2,VII,742995,SNP,YGR125W,p.Ala224Val/c.671C>T,C,T,recovered,C→T,742995
+Carmaphycin-R9-2,VIII,68009,SNP,YHL019W-A,p.Ser100*/c.299C>G,C,G,recovered,C→G,68009
+Carmaphycin-R9-2,XI,84734,SNP,HYM1,p.Asp11His/c.31G>C,G,C,recovered,G→C,84734
+Carmaphycin-R9-2,XI,102346,SNP,FAS1,p.Pro559Arg/c.1676C>G,C,G,recovered,C→G,102346
+Carmaphycin-R9-2,XII,447263,SNP,ACS2,p.Pro105Ala/c.313C>G,G,C,recovered,G→C,447263
+Carmaphycin-R9-2,XII,627141,SNP,ERF2,p.Ser8Ser/c.24G>A,G,A,recovered,G→A,627141
+Carmaphycin-R9-2,XIII,319043,SNP,UBC7,p.Ser122Arg/c.364A>C,A,C,recovered,A→C,319043
+Carmaphycin-R9-2,XIV,326862,SNP,RIA1,p.Thr1071Arg/c.3212C>G,G,C,recovered,G→C,326862
+Carmaphycin-R9-2,XIV,550739,SNP,COG6,p.Asp417His/c.1249G>C,C,G,recovered,C→G,550739
+Carmaphycin-R9-2,XV,656188,SNP,YRM1,p.Asn660Ile/c.1979A>T,A,T,recovered,A→T,656188
+Carmaphycin-R9-2,XVI,702831,SNP,GRS2,p.Lys380Lys/c.1140A>G,T,C,recovered,T→C,702831
+Carmaphycin-R9-2,I,45634,SNP,,,,,extra_call_not_in_truth,C→T,45634
+Carmaphycin-R9-2,I,101281,INS,,,,,extra_call_not_in_truth,+A,101281
+Carmaphycin-R9-2,I,204959,SNP,FLO1,,,,extra_call_not_in_truth,C→G,204959
+Carmaphycin-R9-2,I,206105,DEL,FLO1,,,,extra_call_not_in_truth,Δ135 bp,206105
+Carmaphycin-R9-2,II,30210,SNP,YBL100W-B,,,,extra_call_not_in_truth,T→C,30210
+Carmaphycin-R9-2,II,31525,SNP,YBL100W-B,,,,extra_call_not_in_truth,T→C,31525
+Carmaphycin-R9-2,II,34298,SNP,YBL100W-B,,,,extra_call_not_in_truth,G→A,34298
+Carmaphycin-R9-2,II,137659,INS,,,,,extra_call_not_in_truth,+15 bp,137659
+Carmaphycin-R9-2,III,325,INS,,,,,extra_call_not_in_truth,+A,325
+Carmaphycin-R9-2,III,27658,INS,,,,,extra_call_not_in_truth,+AAA,27658
+Carmaphycin-R9-2,IV,273629,DEL,,,,,extra_call_not_in_truth,Δ2 bp,273629
+Carmaphycin-R9-2,IV,369259,INS,,,,,extra_call_not_in_truth,+17 bp,369259
+Carmaphycin-R9-2,IV,678013,INS,,,,,extra_call_not_in_truth,+TTT,678013
+Carmaphycin-R9-2,IV,892698,INS,,,,,extra_call_not_in_truth,+9 bp,892698
+Carmaphycin-R9-2,IV,1160352,SNP,HXT6,,,,extra_call_not_in_truth,C→T,1160352
+Carmaphycin-R9-2,V,382298,DEL,,,,,extra_call_not_in_truth,Δ1 bp,382298
+Carmaphycin-R9-2,VII,9,INS,,,,,extra_call_not_in_truth,+41 bp,9
+Carmaphycin-R9-2,VII,746575,INS,,,,,extra_call_not_in_truth,+TT,746575
+Carmaphycin-R9-2,IX,18862,DEL,,,,,extra_call_not_in_truth,Δ1 bp,18862
+Carmaphycin-R9-2,IX,22273,INS,,,,,extra_call_not_in_truth,+C,22273
+Carmaphycin-R9-2,IX,23185,INS,CSS1,,,,extra_call_not_in_truth,+G,23185
+Carmaphycin-R9-2,X,525782,INS,,,,,extra_call_not_in_truth,+36 bp,525782
+Carmaphycin-R9-2,X,715129,SNP,DAN4,,,,extra_call_not_in_truth,C→A,715129
+Carmaphycin-R9-2,X,715132,SNP,DAN4,,,,extra_call_not_in_truth,T→A,715132
+Carmaphycin-R9-2,X,715141,SNP,DAN4,,,,extra_call_not_in_truth,A→G,715141
+Carmaphycin-R9-2,XI,385103,INS,,,,,extra_call_not_in_truth,+T,385103
+Carmaphycin-R9-2,XI,666770,SNP,,,,,extra_call_not_in_truth,T→G,666770
+Carmaphycin-R9-2,XII,10965,SNP,,,,,extra_call_not_in_truth,T→C,10965
+Carmaphycin-R9-2,XII,48855,INS,,,,,extra_call_not_in_truth,+14 bp,48855
+Carmaphycin-R9-2,XII,459803,INS,,,,,extra_call_not_in_truth,+28 bp,459803
+Carmaphycin-R9-2,XII,468207,SNP,,,,,extra_call_not_in_truth,C→T,468207
+Carmaphycin-R9-2,XII,468217,SNP,,,,,extra_call_not_in_truth,A→G,468217
+Carmaphycin-R9-2,XII,468386,SNP,,,,,extra_call_not_in_truth,C→A,468386
+Carmaphycin-R9-2,XII,944099,SNP,YLR410W-B,,,,extra_call_not_in_truth,A→C,944099
+Carmaphycin-R9-2,XIV,779308,INS,,,,,extra_call_not_in_truth,+67 bp,779308
+Carmaphycin-R9-2,XV,522811,INS,,,,,extra_call_not_in_truth,+A,522811
+Carmaphycin-R9-2,XV,670767,DEL,,,,,extra_call_not_in_truth,Δ1 bp,670767
+Carmaphycin-R9-2,XV,944473,INS,,,,,extra_call_not_in_truth,+27 bp,944473
+Carmaphycin-R9-2,XVI,462244,DEL,,,,,extra_call_not_in_truth,Δ2 bp,462244
+Carmaphycin-R9-2,XVI,503385,INS,,,,,extra_call_not_in_truth,+12 bp,503385
+Carmaphycin-R9-2,XVI,943050,SNP,YPR202W,,,,extra_call_not_in_truth,C→A,943050
