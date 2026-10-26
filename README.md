@@ -6,9 +6,11 @@ detection (**Kraken2 / MASH / BLAST**). Portable across **UT HPC (Slurm), Seqera
 Nextflow profiles + containers — replacing the working app's bespoke `worker.py`/`slurm_runner.py`
 SSH-and-sbatch executor.
 
-> **Status: early scaffold (v0.1.0-dev).** Structure + grounded process stubs are in place; the
-> tool commands mirror the working app's `wrappers.py`, but parsing (`bin/emit_results.py`) and
-> a few TODOs are not yet wired. Not runnable end-to-end. See **Roadmap**.
+> **Status: v0.2.0, validated on UT HPC.** Both callers (breseq, GATK) run end-to-end through
+> the React UI with full feature parity, plus CNVkit aneuploidy calling (`--parent_sample`).
+> Reproduces Ottilie et al. (2022): 96–100% SNV recall, the CRISPR-validated *PMS1* driver, and
+> the chr I aneuploidy ([`tests/ottilie_benchmark`](tests/ottilie_benchmark/)). Unit, contract
+> and pipeline tests run in CI on every push ([`tests/README.md`](tests/README.md)).
 
 This is a **separate, clean repo** from the working app at `../SlurmApp` — which stays the
 production source of truth until this reaches parity.
