@@ -15,14 +15,14 @@ The paper called variants with **GATK HaplotypeCaller on S288C R64-1-1** and par
 | `NODRUG-GM2` | SRR10985539 | parent (ABC16-GM ancestor) | subtraction baseline |
 | `Doxorubicin-16-R2b` | SRR10985527 | evolved | **23** SNV/INDEL (Sup 4, EAW304); incl. CRISPR-validated **PMS1 Lys724\*** + **PDR1** frameshift |
 | `Carmaphycin-R9-2` | SRR10985678 | evolved | **15** SNV (Sup 4, EAW131); incl. flagship TF **YRM1 Asn660Ile** |
-| `CBR110-15-R3a` | SRR10985585 | evolved | **chr I whole-chromosome duplication** (Sup 5) |
+| `CBR110-15-R3a` | SRR10985585 | evolved | **chr I whole-chromosome duplication** (Sup 5) + **4** SNV (Sup 4, EAW744); incl. flagship TF **YRR1 Thr711Asn** |
 
 ## What it checks
 
 1. **SNV/INDEL concordance vs Supplementary Data 4** — per clone, recall (fraction of the
    paper's calls we recover) + precision, after parent-subtraction. (`compare_snvs.py`)
 2. **Driver / CRISPR-validated alleles** — do we call the biologically causal mutations,
-   including the CRISPR-confirmed `PMS1 Lys724*` and the flagship `YRM1` TF allele. (`compare_snvs.py`)
+   including the CRISPR-confirmed `PMS1 Lys724*` and the flagship `YRM1` / `YRR1` TF alleles. (`compare_snvs.py`)
 3. **Aneuploidy vs Supplementary Data 5** — does the new in-pipeline **CNVkit** step call the
    chr I duplication in CBR110 (and nothing spurious). (`check_cnv.py`)
 
@@ -56,7 +56,7 @@ All comparison scripts are pure stdlib (`_xlsx.py` reads the spreadsheets — no
 
 ## Acceptance targets
 
-- SNV recall ≥ 80% vs Sup 4 for the two SNV clones; documented reason for any miss
+- SNV recall ≥ 80% vs Sup 4 for the three evolved clones; documented reason for any miss
   (StrainQC-nf has no post-call filtering, so expect a few extra calls in repeat/subtelomeric
   regions — reported, not silently dropped).
 - CRISPR-validated `PMS1 Lys724*` recovered.

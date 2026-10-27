@@ -2,3 +2,4 @@ sample,chrom,position,gene,label,crispr_validated,status,called_as
 Doxorubicin-16-R2b,XIV,475560,PMS1,PMS1 Lys724* (mismatch-repair KO; mutator),True,RECOVERED,A→T
 Doxorubicin-16-R2b,VII,470822,PDR1,PDR1 frameshift (multidrug-resistance TF),False,RECOVERED,Δ1 bp
 Carmaphycin-R9-2,XV,656188,YRM1,YRM1 Asn660Ile (flagship YRR1/YRM1 TF family),False,RECOVERED,A→T
+CBR110-15-R3a,XV,639861,YRR1,YRR1 Thr711Asn (flagship YRR1/YRM1 TF family),False,RECOVERED,G→T

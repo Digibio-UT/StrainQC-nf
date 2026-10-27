@@ -10,7 +10,8 @@ For each evolved pilot clone we:
      PMS1 Lys724* in the doxorubicin clone and the flagship YRM1 allele in carmaphycin).
 
 Pure stdlib (uses ./_xlsx.py). Run after the pipeline produces results.json for all four
-pilot samples. CNV/aneuploidy for CBR110 is handled separately by check_cnv.py.
+pilot samples. CBR110's chr I aneuploidy is checked separately by check_cnv.py; its point
+mutations (4 in Sup 4) are scored here like the other clones.
 """
 
 import argparse
@@ -25,11 +26,12 @@ from _xlsx import read_records  # noqa: E402
 
 INDEL_POS_TOL = 3   # bp tolerance for indel anchor-position representation differences
 
-# sample id (samplesheet) -> Sup-4 clone name + role. CBR110 is CNV-only (see check_cnv.py).
+# sample id (samplesheet) -> Sup-4 clone name + role.
 PILOT = {
     "NODRUG-GM2":         {"role": "parent",  "sup4_clone": None,                 "eaw": None},
     "Doxorubicin-16-R2b": {"role": "evolved", "sup4_clone": "Doxorubicin-16--R2b", "eaw": "EAW304"},
     "Carmaphycin-R9-2":   {"role": "evolved", "sup4_clone": "Carmaphycin--R9-2",   "eaw": "EAW131"},
+    "CBR110-15-R3a":      {"role": "evolved", "sup4_clone": "CBR110-15R3a",        "eaw": "EAW744"},
 }
 
 # Driver alleles to spotlight: (sample, chrom, position, gene, label, crispr_validated)
@@ -37,6 +39,7 @@ SPOTLIGHT = [
     ("Doxorubicin-16-R2b", "XIV", 475560, "PMS1", "PMS1 Lys724* (mismatch-repair KO; mutator)", True),
     ("Doxorubicin-16-R2b", "VII", 470822, "PDR1", "PDR1 frameshift (multidrug-resistance TF)", False),
     ("Carmaphycin-R9-2",   "XV",  656188, "YRM1", "YRM1 Asn660Ile (flagship YRR1/YRM1 TF family)", False),
+    ("CBR110-15-R3a",      "XV",  639861, "YRR1", "YRR1 Thr711Asn (flagship YRR1/YRM1 TF family)", False),
 ]
 
 
