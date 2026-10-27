@@ -1418,7 +1418,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ jobId }) => {
                         {results.unmapped_files.map((file, idx) => (
                             <li key={idx} style={{ marginBottom: '8px' }}>
                                 <a 
-                                    href={`http://localhost:8000/results_files/${results.job_id}/${results.variant_caller === 'gatk' ? 'gatk' : 'breseq/data'}/${file}`}
+                                    href={`/results_files/${jobId}/${results.variant_caller === 'gatk' ? 'gatk' : 'breseq/data'}/${file}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{ color: '#1976d2', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -1558,7 +1558,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ jobId }) => {
                         <h3 style={{ color: '#1976d2' }}>Detected Variants (Mixed Populations)</h3>
                         {results.hc_snps_file && (
                             <a 
-                                href={`http://localhost:8000/results_files/${results.job_id}/${results.hc_snps_file}`}
+                                href={`/results_files/${jobId}/${results.hc_snps_file}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ 
@@ -1612,8 +1612,8 @@ const ResultsView: React.FC<ResultsViewProps> = ({ jobId }) => {
                                                     key={i}
                                                     onClick={() => setEvidenceUrl(
                                                         results.variant_caller === 'gatk'
-                                                            ? `/api/v1/analysis/evidence/${results.job_id}?path=${encodeURIComponent(link.url)}`
-                                                            : `/results_files/${results.job_id}/breseq/output/${link.url}`
+                                                            ? `/api/v1/analysis/evidence/${jobId}?path=${encodeURIComponent(link.url)}`
+                                                            : `/results_files/${jobId}/breseq/output/${link.url}`
                                                     )}
                                                     style={{ 
                                                         fontSize: '0.8em', 
