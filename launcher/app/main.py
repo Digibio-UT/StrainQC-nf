@@ -22,7 +22,10 @@ app.add_middleware(
 )
 
 # Serve pipeline outputs (evidence HTML, coverage, unmapped, hc-SNP CSV) like the old app.
-app.mount("/results_files", StaticFiles(directory=str(settings.RESULTS_DIR)), name="results_files")
+# follow_symlink: jobs run from the command line are linked into RESULTS_DIR (e.g. the
+# ottilie-* benchmark jobs) and would otherwise 404.
+app.mount("/results_files", StaticFiles(directory=str(settings.RESULTS_DIR), follow_symlink=True),
+          name="results_files")
 
 app.include_router(upload.router, prefix=f"{settings.API_V1_STR}/upload", tags=["upload"])
 app.include_router(analysis.router, prefix=f"{settings.API_V1_STR}/analysis", tags=["analysis"])
