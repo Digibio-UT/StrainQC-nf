@@ -15,6 +15,8 @@ import {
     ReferenceArea
 } from 'recharts';
 import GenomeBrowser from './GenomeBrowser';
+import CopyNumberPanel from './CopyNumberPanel';
+import type { ChromosomeCopyNumber } from './CopyNumberPanel';
 
 // Removed unused interface AnalysisStatus
 
@@ -108,6 +110,10 @@ interface AnalysisResult {
     hc_snps_file?: string;
     coverage_file?: string;
     unmapped_files?: string[];
+    // CNVkit copy number (gatk path, only when run with --parent_sample)
+    chromosome_copy_number?: ChromosomeCopyNumber[];
+    aneuploidy?: { seq_id: string; call: string; mean_cn: number }[];
+    cnv_tool?: string;
     read_stats?: {
         total_reads: number;
         mapped_percentage: number;
@@ -1023,8 +1029,28 @@ const ResultsView: React.FC<ResultsViewProps> = ({ jobId }) => {
                 </button>
             </div>
             
+            {results?.chromosome_copy_number && results.chromosome_copy_number.length > 0 && (
+                <CopyNumberPanel
+                    data={results.chromosome_copy_number}
+                    aneuploidy={results.aneuploidy || []}
+                    tool={results.cnv_tool}
+                    displayName={getDisplayName}
+                    selectedChrom={selectedChrom}
+                    onSelectChrom={(seqId) => {
+                        if (!chromosomes.includes(seqId)) return;
+                        setSelectedChrom(seqId);
+                        setSelectedVariantPos(null);
+                        setViewCenterTop(null);
+                        setViewCenterBottom(null);
+                        setZoomWindowTop(5000);
+                        setZoomWindowBottom(5000);
+                        document.getElementById('coverage-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                />
+            )}
+
             {coverage.length > 0 && (
-                <div style={{ marginBottom: '40px', padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <div id="coverage-section" style={{ marginBottom: '40px', padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                     <h3 style={{ color: '#2c3e50', marginBottom: '5px' }}>Genome Coverage</h3>
                     <p style={{ fontSize: '0.85em', color: '#888', margin: '0 0 10px 0' }}>
                         Click anywhere on the coverage plot to navigate the annotation browser below.
@@ -1197,7 +1223,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ jobId }) => {
                                             name="Variants" 
                                             data={variantData} 
                                             shape={<VariantShape />}
-                                            onClick={(data) => {
+                                            onClick={(data: any) => {
                                                 if (data && data.payload && data.payload.pos) {
                                                     setSelectedVariantPos(data.payload.pos);
                                                 } else if (data && data.pos) {
