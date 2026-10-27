@@ -5,10 +5,11 @@ name: build-container
 on:
   push:
     branches: [main]
-    paths:                  # only rebuild when the image recipe changes
-      - 'containers/Dockerfile'
+    tags: ['v*']            # release tag vX.Y.Z → image tag X.Y.Z (the pipeline's default image)
+    paths:                  # main only: rebuild when the image recipe changes (GitHub does not
+      - 'containers/Dockerfile'               #   apply path filters to tag pushes)
       - '.github/workflows/build-container.yml'
-  workflow_dispatch:        # manual "Run workflow" from the Actions tab (also for release builds)
+  workflow_dispatch:        # manual "Run workflow" from the Actions tab
 
 permissions:
   contents: read
@@ -42,6 +43,7 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha,format=short
+            type=semver,pattern={{version}}
 
       - name: Build and push
         uses: docker/build-push-action@v6

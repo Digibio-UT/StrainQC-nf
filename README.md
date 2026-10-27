@@ -36,17 +36,29 @@ nextflow.config            params, container tags, execution profiles
 docs/API_CONTRACT.md       the frozen contract this pipeline must satisfy
 ```
 
-## Usage (once wired)
+## Usage
 
 ```bash
 nextflow run . -profile docker \
   --input samplesheet.csv --reference ref.gbk \
-  --variant_caller gatk --ploidy 1
+  --variant_caller gatk --ploidy 1 [--parent_sample <ancestor_id>]
 ```
 
 Samplesheet: `sample,fastq_1,fastq_2` (see [`assets/samplesheet.example.csv`](assets/samplesheet.example.csv)).
+All parameters, with defaults and help, are in [`nextflow_schema.json`](nextflow_schema.json)
+(also what Seqera Platform builds its launch form from).
 
-Profiles: `standard` (local), `docker`, `singularity`, `conda`, `slurm` (UT HPC), `test`.
+Profiles (combine with commas):
+
+| Where | Profile |
+|---|---|
+| UT HPC | `slurm,apptainer` (or `hpc` for both), `slurm,hpc_modules` |
+| Seqera + Azure Batch | `azure`, see [`docs/deploy_seqera_azure.md`](docs/deploy_seqera_azure.md) |
+| Laptop / server | `docker`, `apptainer`, `singularity`, `conda` |
+| Smoke test | `test` (tiny bundled dataset) |
+
+The default tool image is the published one for this release,
+`ghcr.io/digibio-ut/strainqc:<version>`.
 
 ## Setup — reference databases (per site)
 
@@ -60,18 +72,14 @@ A dedicated `setup` step for fresh cloud sites is a **TODO** (drives Vallo's sto
 
 ## Roadmap
 
-1. ~~**Port parsers** → `bin/emit_results.py`~~ ✅ done (breseq HTML/GD, VCF+GBK annotation,
-   kraken, mash, hc-SNP CSV, flagstat read-stats, evidence-link attach; unit-tested on synthetic
-   fixtures). Fixed a double-append bug in the original BLAST parser along the way.
-2. **Validate the workflow wiring** — `nextflow run . -profile test,docker -stub` (channel
-   assembly in `workflows/strainqc.nf` is written but not yet run; Nextflow wasn't available
-   at authoring time).
-3. **`gbk→fasta` + evidence** helpers (`extract_evidence.py`) into `bin/`; resolve multi-tool
-   container for `PREPARE_REFERENCE` (samtools+bwa-mem2+gatk).
-4. **Pin container digests** in `nextflow.config` (tags are placeholders — ⚠️ verify).
-5. **Test profile** with a tiny bundled dataset; wire CI.
-6. **Thin launcher**: adapt the existing FastAPI `/analysis/start` to shell out to `nextflow run`
-   (replaces Celery + Slurm SSH executor).
-7. **Confirm HPC specifics** with Vallo/Hamza (partition, `--account`).
-8. **Auth/multi-tenancy** before any shared instance (current app: `allow_origins=["*"]`, no auth).
-```
+Done: parsers ported (`bin/emit_results.py`), wiring validated, thin launcher behind the
+unchanged React UI, single all-in-one image on ghcr.io, test profile + CI
+([`tests/README.md`](tests/README.md)), Ottilie benchmark, CNVkit aneuploidy, Seqera launch
+schema, `azure` profile.
+
+Next:
+1. **Web app on Seqera + Azure**: start runs through the Seqera API and read results from Azure
+   storage instead of a local `nextflow run` + local disk.
+2. **Auth / multi-tenancy** before any shared instance (current app: `allow_origins=["*"]`, no auth).
+3. **Reference-database setup step** for fresh cloud sites (Kraken2 / MASH staging).
+4. **Runtime parameter validation** with the nf-schema plugin (the schema is already in place).

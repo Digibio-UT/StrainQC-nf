@@ -55,8 +55,10 @@ venv/
 !assets/test/reads.fastq.gz
 launcher_data/
 
-# Apptainer/Singularity images (build locally; do not commit)
+# Apptainer/Singularity images (build locally; do not commit) + Nextflow's image pull caches
 *.sif
+.apptainer/
+.singularity/
 
 # Local validation dataset (Ottilie ALE, ~480 MB) — never commit
 ottilie_test_data/

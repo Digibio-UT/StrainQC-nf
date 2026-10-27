@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Digibio-UT/StrainQC-nf/main/nextflow_schema.json",
+  "title": "StrainQC-nf pipeline parameters",
+  "description": "Sequencing-based strain QC: variant calling (breseq or GATK), aneuploidy calling (CNVkit) and contamination screening (Kraken2 / MASH).",
+  "type": "object",
+  "$defs": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Reads, reference genome and where to write results.",
+      "required": ["input", "reference", "outdir"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "schema": "assets/schema_input.json",
+          "mimetype": "text/csv",
+          "pattern": "^\\S+\\.csv$",
+          "description": "Samplesheet (CSV) listing the samples and their FASTQ files.",
+          "help_text": "Columns: `sample,fastq_1,fastq_2` (leave `fastq_2` empty for single-end). Sample ids must be unique; they name each sample's output folder. FASTQ paths may be absolute, URLs, or relative to the samplesheet.",
+          "fa_icon": "fas fa-file-csv"
+        },
+        "reference": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "pattern": "^\\S+\\.(gbk|gb|genbank|fasta|fa|fna)$",
+          "description": "Reference genome, GenBank (preferred: gene annotation) or FASTA.",
+          "help_text": "A GenBank file lets results report the gene and product hit by each variant and powers the genome browser's annotation track.",
+          "fa_icon": "fas fa-dna"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "default": "results",
+          "description": "Output directory; one folder per sample, each with a results.json.",
+          "fa_icon": "fas fa-folder-open"
+        }
+      }
+    },
+    "variant_calling_options": {
+      "title": "Variant calling",
+      "type": "object",
+      "fa_icon": "fas fa-search",
+      "description": "Choose the variant caller and its basic mode.",
+      "properties": {
+        "variant_caller": {
+          "type": "string",
+          "enum": ["breseq", "gatk"],
+          "default": "breseq",
+          "description": "breseq (bacteria, rich mutation reports) or GATK (any genome size, e.g. yeast).",
+          "fa_icon": "fas fa-code-branch"
+        },
+        "polymorphism_mode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Call mixed populations: breseq polymorphism mode, or GATK Mutect2 instead of HaplotypeCaller.",
+          "fa_icon": "fas fa-layer-group"
+        },
+        "ploidy": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Genome copies per cell, GATK HaplotypeCaller only (1 = haploid, 2 = diploid yeast)."
+        }
+      }
+    },
+    "cnv_options": {
+      "title": "Aneuploidy (CNVkit)",
+      "type": "object",
+      "fa_icon": "fas fa-chart-bar",
+      "description": "Copy-number and whole-chromosome aneuploidy calling against an ancestor (GATK route).",
+      "properties": {
+        "parent_sample": {
+          "type": "string",
+          "pattern": "^\\S+$",
+          "description": "Sample id of the un-evolved ancestor. Enables CNVkit: every other sample is called against it.",
+          "help_text": "Must match a `sample` in the samplesheet; the run stops if it does not. Leave empty to skip CNV calling. Only used with `variant_caller = gatk`.",
+          "fa_icon": "fas fa-sitemap"
+        }
+      }
+    },
+    "breseq_options": {
+      "title": "breseq advanced options",
+      "type": "object",
+      "fa_icon": "fas fa-sliders-h",
+      "description": "Fine-tuning for the breseq route; the defaults suit most bacterial resequencing runs.",
+      "properties": {
+        "breseq_limit_fold_coverage": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Downsample to this fold coverage to save time (0 = no limit)."
+        },
+        "breseq_base_quality_cutoff": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 3,
+          "description": "Ignore bases below this quality."
+        },
+        "breseq_min_mapping_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Ignore reads below this mapping quality."
+        },
+        "breseq_polymorphism_frequency_cutoff": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.05,
+          "description": "Lowest allele frequency reported in polymorphism mode."
+        },
+        "breseq_no_junction_prediction": {
+          "type": "boolean",
+          "default": false,
+          "description": "Skip new-junction (structural variant) prediction; faster."
+        },
+        "breseq_consensus_min_cov_each_strand": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Minimum reads per strand to call a consensus mutation."
+        },
+        "breseq_targeted_sequencing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reads come from targeted (not whole-genome) sequencing."
+        }
+      }
+    },
+    "gatk_options": {
+      "title": "GATK advanced options",
+      "type": "object",
+      "fa_icon": "fas fa-sliders-h",
+      "description": "Fine-tuning for the GATK route.",
+      "properties": {
+        "gatk_min_base_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10,
+          "description": "Ignore bases below this quality."
+        },
+        "gatk_min_mapping_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 20,
+          "description": "Ignore reads below this mapping quality."
+        },
+        "gatk_max_reads_per_align_start": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 50,
+          "description": "Cap reads starting at one position (limits PCR-duplicate pile-ups)."
+        },
+        "gatk_dont_use_soft_clipped": {
+          "type": "boolean",
+          "default": false,
+          "description": "Ignore soft-clipped bases."
+        },
+        "gatk_call_conf": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30.0,
+          "description": "Minimum confidence to call a variant (HaplotypeCaller)."
+        },
+        "gatk_callable_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10,
+          "description": "Minimum depth for a site to count as callable (Mutect2)."
+        }
+      }
+    },
+    "contamination_options": {
+      "title": "Contamination screening",
+      "type": "object",
+      "fa_icon": "fas fa-biohazard",
+      "description": "Reference databases for detecting contaminating organisms. Each screen is skipped if its database is not given.",
+      "properties": {
+        "kraken2_db": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Kraken2 database directory (classifies reads that do not map to the reference)."
+        },
+        "mash_db": {
+          "type": "string",
+          "format": "file-path",
+          "pattern": "^\\S+\\.msh$",
+          "description": "MASH sketch file, e.g. refseq.msh (identifies dominant and contaminating strains)."
+        },
+        "run_blast": {
+          "type": "boolean",
+          "default": false,
+          "description": "Fallback remote BLAST search when no Kraken2 database is given (slow, needs internet)."
+        }
+      }
+    },
+    "evidence_options": {
+      "title": "Read-evidence pre-compute",
+      "type": "object",
+      "fa_icon": "fas fa-eye",
+      "description": "Read pile-ups saved per variant for the web app's evidence viewer.",
+      "properties": {
+        "evidence_window": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 75,
+          "description": "Bases shown either side of each variant."
+        },
+        "evidence_max_reads": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 80,
+          "description": "Maximum reads stored per variant."
+        }
+      }
+    },
+    "resource_options": {
+      "title": "Resource limits",
+      "type": "object",
+      "fa_icon": "fas fa-microchip",
+      "description": "Upper bounds for any single task; set these to the largest machine available.",
+      "properties": {
+        "max_cpus": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 16,
+          "description": "Maximum CPUs per task."
+        },
+        "max_memory": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+          "default": "64.GB",
+          "description": "Maximum memory per task, e.g. '64.GB'."
+        },
+        "max_time": {
+          "type": "string",
+          "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
+          "default": "48.h",
+          "description": "Maximum run time per task, e.g. '48.h'."
+        }
+      }
+    },
+    "infrastructure_options": {
+      "title": "Infrastructure",
+      "type": "object",
+      "fa_icon": "fas fa-server",
+      "description": "Container image and site-specific HPC settings.",
+      "properties": {
+        "strainqc_container": {
+          "type": "string",
+          "default": "ghcr.io/digibio-ut/strainqc:0.2.1",
+          "description": "All-in-one tool image. The default is the published image for this release; a local .sif also works with Apptainer.",
+          "fa_icon": "fab fa-docker"
+        },
+        "hpc_pre_command": {
+          "type": "string",
+          "hidden": true,
+          "default": "module load miniconda3 ; module load breseq ; eval \"$(conda shell.bash hook)\" ; conda activate bio-platform ; module load gatk/4.4.0.0 bwa-mem2/2.2.1",
+          "description": "Shell run before each task under the `hpc_modules` profile (loads tools via environment modules)."
+        },
+        "hpc_account": {
+          "type": "string",
+          "hidden": true,
+          "default": "ealloc_bioeng_h-1",
+          "description": "Slurm account (UT HPC)."
+        },
+        "hpc_queue": {
+          "type": "string",
+          "hidden": true,
+          "default": "main",
+          "description": "Slurm partition (UT HPC)."
+        }
+      }
+    }
+  },
+  "allOf": [
+    { "$ref": "#/$defs/input_output_options" },
+    { "$ref": "#/$defs/variant_calling_options" },
+    { "$ref": "#/$defs/cnv_options" },
+    { "$ref": "#/$defs/breseq_options" },
+    { "$ref": "#/$defs/gatk_options" },
+    { "$ref": "#/$defs/contamination_options" },
+    { "$ref": "#/$defs/evidence_options" },
+    { "$ref": "#/$defs/resource_options" },
+    { "$ref": "#/$defs/infrastructure_options" }
+  ]
+}
