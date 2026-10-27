@@ -8,6 +8,7 @@ Reproduction of published variant calls for four pilot clones (*Commun Biol* 5:1
 |---|---|--:|--:|--:|--:|--:|
 | Doxorubicin-16-R2b | Doxorubicin-16--R2b | 23 | 22 | 96% | 96 | 19% |
 | Carmaphycin-R9-2 | Carmaphycin--R9-2 | 15 | 15 | 100% | 41 | 27% |
+| CBR110-15-R3a | CBR110-15R3a | 4 | 4 | 100% | 35 | 10% |
 
 ## Driver-allele spotlight
 
@@ -16,6 +17,7 @@ Reproduction of published variant calls for four pilot clones (*Commun Biol* 5:1
 | Doxorubicin-16-R2b | PMS1 Lys724* (mismatch-repair KO; mutator) | yes | **RECOVERED** | A→T |
 | Doxorubicin-16-R2b | PDR1 frameshift (multidrug-resistance TF) | — | **RECOVERED** | Δ1 bp |
 | Carmaphycin-R9-2 | YRM1 Asn660Ile (flagship YRR1/YRM1 TF family) | — | **RECOVERED** | A→T |
+| CBR110-15-R3a | YRR1 Thr711Asn (flagship YRR1/YRM1 TF family) | — | **RECOVERED** | G→T |
 
 ## Aneuploidy vs Supplementary Data 5 (CNVkit)
 

@@ -1,3 +1,4 @@
 sample,clone,truth,recovered,evolved_only_calls,recall,precision
 Doxorubicin-16-R2b,Doxorubicin-16--R2b,23,22,118,0.957,0.186
 Carmaphycin-R9-2,Carmaphycin--R9-2,15,15,56,1.0,0.268
+CBR110-15-R3a,CBR110-15R3a,4,4,39,1.0,0.103

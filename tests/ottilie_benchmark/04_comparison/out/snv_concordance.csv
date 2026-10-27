@@ -174,3 +174,42 @@ Carmaphycin-R9-2,XV,944473,INS,,,,,extra_call_not_in_truth,+27 bp,944473
 Carmaphycin-R9-2,XVI,462244,DEL,,,,,extra_call_not_in_truth,Δ2 bp,462244
 Carmaphycin-R9-2,XVI,503385,INS,,,,,extra_call_not_in_truth,+12 bp,503385
 Carmaphycin-R9-2,XVI,943050,SNP,YPR202W,,,,extra_call_not_in_truth,C→A,943050
+CBR110-15-R3a,IV,205738,SNP,RPO21,p.Thr1608Thr/c.4824G>T,C,A,recovered,C→A,205738
+CBR110-15-R3a,IV,1184212,SNP,TRR1,p.Cys305Phe/c.914G>T,G,T,recovered,G→T,1184212
+CBR110-15-R3a,VII,233903,SNP,ROG1,p.Ser202Leu/c.605C>T,G,A,recovered,G→A,233903
+CBR110-15-R3a,XV,639861,SNP,YRR1,p.Thr711Asn/c.2132C>A,G,T,recovered,G→T,639861
+CBR110-15-R3a,II,30210,SNP,YBL100W-B,,,,extra_call_not_in_truth,T→C,30210
+CBR110-15-R3a,II,115435,SNP,,,,,extra_call_not_in_truth,T→A,115435
+CBR110-15-R3a,II,115437,SNP,,,,,extra_call_not_in_truth,G→A,115437
+CBR110-15-R3a,II,492950,DEL,,,,,extra_call_not_in_truth,Δ1 bp,492950
+CBR110-15-R3a,III,325,INS,,,,,extra_call_not_in_truth,+A,325
+CBR110-15-R3a,IV,273629,DEL,,,,,extra_call_not_in_truth,Δ2 bp,273629
+CBR110-15-R3a,VI,82313,SNP,,,,,extra_call_not_in_truth,C→T,82313
+CBR110-15-R3a,VII,400572,SNP,,,,,extra_call_not_in_truth,A→T,400572
+CBR110-15-R3a,VII,400577,SNP,,,,,extra_call_not_in_truth,G→T,400577
+CBR110-15-R3a,VII,678070,DEL,,,,,extra_call_not_in_truth,Δ1 bp,678070
+CBR110-15-R3a,VII,733109,DEL,,,,,extra_call_not_in_truth,Δ1 bp,733109
+CBR110-15-R3a,VIII,387090,DEL,,,,,extra_call_not_in_truth,Δ1 bp,387090
+CBR110-15-R3a,VIII,396945,DEL,,,,,extra_call_not_in_truth,Δ1 bp,396945
+CBR110-15-R3a,IX,22273,INS,,,,,extra_call_not_in_truth,+C,22273
+CBR110-15-R3a,X,342348,DEL,,,,,extra_call_not_in_truth,Δ1 bp,342348
+CBR110-15-R3a,X,478375,SNP,YJR029W,,,,extra_call_not_in_truth,A→C,478375
+CBR110-15-R3a,X,478376,SNP,YJR029W,,,,extra_call_not_in_truth,T→C,478376
+CBR110-15-R3a,X,639198,INS,,,,,extra_call_not_in_truth,+6 bp,639198
+CBR110-15-R3a,X,715129,SNP,DAN4,,,,extra_call_not_in_truth,C→A,715129
+CBR110-15-R3a,X,715132,SNP,DAN4,,,,extra_call_not_in_truth,T→A,715132
+CBR110-15-R3a,X,715141,SNP,DAN4,,,,extra_call_not_in_truth,A→G,715141
+CBR110-15-R3a,XII,552,DEL,,,,,extra_call_not_in_truth,Δ1 bp,552
+CBR110-15-R3a,XII,11309,DEL,,,,,extra_call_not_in_truth,Δ1 bp,11309
+CBR110-15-R3a,XII,459803,INS,,,,,extra_call_not_in_truth,+27 bp,459803
+CBR110-15-R3a,XII,468386,SNP,,,,,extra_call_not_in_truth,C→A,468386
+CBR110-15-R3a,XII,823442,DEL,,,,,extra_call_not_in_truth,Δ4 bp,823442
+CBR110-15-R3a,XII,944099,SNP,YLR410W-B,,,,extra_call_not_in_truth,A→C,944099
+CBR110-15-R3a,XIII,924387,INS,,,,,extra_call_not_in_truth,+GTGTG,924387
+CBR110-15-R3a,XIV,6616,INS,,,,,extra_call_not_in_truth,+18 bp,6616
+CBR110-15-R3a,XIV,479459,DEL,,,,,extra_call_not_in_truth,Δ2 bp,479459
+CBR110-15-R3a,XIV,779308,INS,,,,,extra_call_not_in_truth,+10 bp,779308
+CBR110-15-R3a,XV,60213,INS,,,,,extra_call_not_in_truth,+TTTT,60213
+CBR110-15-R3a,XV,522811,INS,,,,,extra_call_not_in_truth,+AA,522811
+CBR110-15-R3a,XVI,840627,DEL,,,,,extra_call_not_in_truth,Δ1 bp,840627
+CBR110-15-R3a,Mito,63029,SNP,,,,,extra_call_not_in_truth,T→A,63029
