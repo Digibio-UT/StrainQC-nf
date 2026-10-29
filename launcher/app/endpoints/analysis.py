@@ -59,7 +59,8 @@ async def start_analysis(request: AnalysisRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"job_id": job_id, "task_id": str(info["pid"]),
-            "status": "queued", "message": "Analysis job has been launched via Nextflow."}
+            "status": "queued",
+            "message": f"Analysis job has been launched via {'Seqera Platform' if settings.LAUNCH_MODE == 'seqera' else 'Nextflow'}."}
 
 
 @router.get("/status/{job_id}")
@@ -123,6 +124,8 @@ async def active_jobs():
 async def stop_job(job_id: str):
     if not runner.stop_job(job_id):
         raise HTTPException(status_code=404, detail="Job not found active")
+    if settings.LAUNCH_MODE == "seqera":
+        return {"message": f"Job {job_id}: cancellation requested in Seqera Platform."}
     return {"message": f"Job {job_id} terminated (Nextflow process + submitted Slurm jobs)."}
 
 

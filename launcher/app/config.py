@@ -44,6 +44,25 @@ class Settings:
     WITH_TOWER = (_with_tower.lower() in ("1", "true", "yes")
                   if _with_tower is not None else bool(os.getenv("TOWER_ACCESS_TOKEN")))
 
+    # How runs are started. "local" (default): `nextflow run` on this machine, e.g. the UT HPC
+    # login node. "seqera": launch the site's Launchpad pipeline through the Seqera Platform API
+    # (e.g. DTU BRIGHT on Azure Batch); see app/seqera_runner.py.
+    LAUNCH_MODE = os.getenv("STRAINQC_LAUNCH_MODE", "local").strip().lower()
+
+    # Seqera mode. The token is TOWER_ACCESS_TOKEN (read from env; keep it in a chmod-600 file
+    # outside the repo). The Launchpad pipeline supplies the compute environment, work dir,
+    # revision and default parameters; the launcher adds input/reference/outdir per job.
+    SEQERA_API          = os.getenv("SEQERA_API", "https://api.cloud.seqera.io").rstrip("/")
+    SEQERA_TOKEN        = os.getenv("TOWER_ACCESS_TOKEN")
+    SEQERA_WORKSPACE_ID = os.getenv("SEQERA_WORKSPACE_ID")
+    SEQERA_PIPELINE_ID  = os.getenv("SEQERA_PIPELINE_ID")
+    # Where DATA_DIR lives in object storage, as "<local prefix>=<remote prefix>", e.g.
+    # "/home/azureuser/StrainQC=az://aletest/StrainQC" for a blobfuse2 mount. Every file the
+    # pipeline reads or writes (uploads, references, samplesheets, outdir) must be under it.
+    STORAGE_PATH_MAP = os.getenv("STRAINQC_STORAGE_PATH_MAP", "")
+    # job_id -> Seqera workflow id. Keep it on local disk, not on a blob mount.
+    SEQERA_JOBS_FILE = Path(os.getenv("STRAINQC_SEQERA_JOBS_FILE", DATA_DIR / "seqera_jobs.json"))
+
     ALLOWED_UPLOAD_EXT = (
         ".fastq", ".fastq.gz", ".fq", ".fq.gz",
         ".fasta", ".fna", ".fa", ".gbk", ".gb",
