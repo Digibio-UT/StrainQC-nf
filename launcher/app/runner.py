@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from app.config import settings
+from app import seqera_runner
 
 # In-memory job registry. Enough for a single-lab launcher; a shared instance would
 # persist this (DB) — see the auth/multi-tenancy strategy question.
@@ -49,6 +50,24 @@ def resolve_reference(ref_id: str) -> Optional[Path]:
     return None
 
 
+def _seqera() -> bool:
+    """True when runs go through the Seqera API (STRAINQC_LAUNCH_MODE=seqera), else local."""
+    if settings.LAUNCH_MODE not in ("local", "seqera"):
+        raise RuntimeError(f"Unknown STRAINQC_LAUNCH_MODE {settings.LAUNCH_MODE!r} (use 'local' or 'seqera').")
+    return settings.LAUNCH_MODE == "seqera"
+
+
+def _seqera_params(options: dict) -> dict:
+    """The same forwarded options as the local `--key value` flags, as Launchpad parameters.
+    Contamination DBs are passed as given: in Seqera mode they are object-storage paths."""
+    params = {k: v for k, v in (options or {}).items() if k in _FORWARD_OPTS and v is not None}
+    if settings.KRAKEN2_DB:
+        params["kraken2_db"] = settings.KRAKEN2_DB
+    if settings.MASH_DB:
+        params["mash_db"] = settings.MASH_DB
+    return params
+
+
 def _write_samplesheet(job_id: str, read_paths: List[Path], launch_dir: Path) -> Path:
     sheet = launch_dir / "samplesheet.csv"
     r1 = str(read_paths[0])
@@ -59,6 +78,8 @@ def _write_samplesheet(job_id: str, read_paths: List[Path], launch_dir: Path) ->
 
 def start_job(job_id: str, read_paths: List[Path], reference: Path, options: dict) -> dict:
     """Launch `nextflow run` for a job as a detached-ish background subprocess."""
+    if _seqera():
+        return seqera_runner.start_job(job_id, read_paths, reference, _seqera_params(options))
     settings.ensure_dirs()
     launch_dir = settings.RESULTS_DIR / job_id / "_nf"
     launch_dir.mkdir(parents=True, exist_ok=True)
@@ -119,6 +140,8 @@ def start_job(job_id: str, read_paths: List[Path], reference: Path, options: dic
 
 def job_process_state(job_id: str) -> Optional[str]:
     """'running' | 'exited_ok' | 'exited_error' | None (unknown/not tracked this session)."""
+    if _seqera():
+        return seqera_runner.job_process_state(job_id)
     entry = _JOBS.get(job_id)
     if not entry:
         return None
@@ -129,6 +152,8 @@ def job_process_state(job_id: str) -> Optional[str]:
 
 
 def tail_log(job_id: str, n: int = 40) -> str:
+    if _seqera():
+        return seqera_runner.tail_log(job_id, n)
     entry = _JOBS.get(job_id)
     if not entry:
         return ""
@@ -140,6 +165,8 @@ def tail_log(job_id: str, n: int = 40) -> str:
 
 
 def list_active() -> List[dict]:
+    if _seqera():
+        return seqera_runner.list_active()
     out = []
     for job_id, e in _JOBS.items():
         if e["proc"].poll() is None:
@@ -150,6 +177,8 @@ def list_active() -> List[dict]:
 
 def stop_job(job_id: str) -> bool:
     """Terminate the nextflow process; it propagates `scancel` to submitted Slurm jobs."""
+    if _seqera():
+        return seqera_runner.stop_job(job_id)
     entry = _JOBS.get(job_id)
     if not entry or entry["proc"].poll() is not None:
         return False
